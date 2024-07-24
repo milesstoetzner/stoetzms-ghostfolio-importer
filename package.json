@@ -1,0 +1,63 @@
+{
+    "name": "stoetzms-ghostfolio-importer",
+    "version": "0.0.1",
+    "main": "src/index.ts",
+    "repository": "https://github.com/milesstoetzner/stoetzms-ghostfolio-importer",
+    "homepage": "https://github.com/milesstoetzner/stoetzms-ghostfolio-importer",
+    "author": {
+        "name": "Miles Stötzner",
+        "email": "miles@stoetzner.de",
+        "url": "https://miles.stoetzner.de"
+    },
+    "license": "Apache-2.0",
+    "bin": {
+        "ghostfolio-importer": "./dist/index.js"
+    },
+    "scripts": {
+        "start": "yarn tsx src/index.ts",
+        "build": "yarn pkgroll --clean-dist",
+        "lint": "yarn eslint src",
+        "format": "yarn prettier --check .",
+        "format:write": "yarn prettier --write ."
+    },
+    "dependencies": {
+        "axios": "^1.7.2",
+        "commander": "^12.1.0",
+        "js-yaml": "^4.1.0",
+        "pdf-text-reader": "^5.1.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.7.0",
+        "@tsconfig/node22": "^22.0.0",
+        "@types/eslint__js": "^8.42.3",
+        "@types/js-yaml": "^4.0.9",
+        "@types/node": "^20.14.11",
+        "eslint": "^9.7.0",
+        "eslint-config-prettier": "^9.1.0",
+        "pkgroll": "^2.4.1",
+        "prettier": "^3.3.3",
+        "tsx": "^4.16.2",
+        "typescript": "^5.5.4",
+        "typescript-eslint": "^7.17.0"
+    },
+    "type": "module",
+    "keywords": [
+        "ghostfolio",
+        "scalable capital",
+        "stock",
+        "stocks",
+        "ETF",
+        "ETFs",
+        "portfolio",
+        "import",
+        "importer",
+        "export",
+        "extract",
+        "pdf",
+        "json",
+        "yaml"
+    ],
+    "engines": {
+        "node": ">=22.0.0"
+    }
+}
