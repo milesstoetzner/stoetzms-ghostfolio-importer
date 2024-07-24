@@ -3,6 +3,12 @@ import actions from './actions'
 import hae from './utils/hae'
 
 program
+    .name('ghostfolio-importer')
+    .description(
+        'ghostfolio-importer is a simple utility to import transactions from Scalable Capital and Trade Republic into Ghostfolio.'
+    )
+
+program
     .command('transform')
     .option('--input-dir <string>', '', '.')
     .option('--input-file <string>', '')
