@@ -1,12 +1,14 @@
 import {program} from 'commander'
 import actions from './actions'
 import hae from './utils/hae'
+import config from './config'
 
 program
     .name('ghostfolio-importer')
     .description(
         'ghostfolio-importer is a simple utility to import transactions from Scalable Capital and Trade Republic into Ghostfolio.'
     )
+    .version(config.version)
 
 program
     .command('transform')

@@ -149,6 +149,7 @@ async function output(
                     LU0908500753: 'MEUD.PA',
                     LU1681048804: '500.PA',
                     LU1829221024: 'UST.PA',
+                    LU2089238203: 'PRAW.DE',
                     ...map,
                 },
             })

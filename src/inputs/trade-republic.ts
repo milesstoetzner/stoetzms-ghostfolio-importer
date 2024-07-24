@@ -1,5 +1,6 @@
 import {Transaction, TransactionType} from '../types'
 import {convertPrice, isUndefined, parseDate, parseNumber} from '../utils/utils'
+import config from '../config'
 
 export default class TradeRepublic {
     private readonly raw: string
@@ -24,6 +25,7 @@ export default class TradeRepublic {
                     provider: 'trade-republic',
                     format: 'pdf',
                     file: this.file,
+                    version: config.version,
                 },
             }
         }
