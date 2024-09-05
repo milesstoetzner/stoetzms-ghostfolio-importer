@@ -39,7 +39,7 @@ Import transactions from Scalable Capital.
 | input-provider | true      | `scalable-capital` |             |
 | input-format   | true      | `pdf`              |             |
 
-## Trade Republic
+### Trade Republic
 
 Import transactions from Trade Republic.
 
@@ -96,7 +96,7 @@ Export transactions for Ghostfolio ...
 
 ### None
 
-Export transactions not for a specific provider using the internal transaction format.
+Export transactions not for a specific provider but using the internal transaction format.
 
 | Option          | Mandatory | Value     | Description |
 | --------------- | --------- | --------- | ----------- |
@@ -105,11 +105,11 @@ Export transactions not for a specific provider using the internal transaction f
 
 ## Limitations
 
--   We do not support fees
--   We do not support taxes
--   We do only support EUR and USD
--   We do rely on a config to map ISINs to symbols that Ghostfolio understands
--   We do rely on transactions provided by PDF
+-   We do not support fees.
+-   We do not support taxes.
+-   We do only support EUR and USD.
+-   We do rely on a config to map ISINs to symbols that Ghostfolio understands.
+-   We do rely on transactions provided by PDF.
 
 ## Similar Projects
 
