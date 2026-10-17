@@ -25,7 +25,7 @@ async function transform(options: {
     ghostfolioEndpoint?: string
     ghostfolioToken?: string
 }) {
-    console.log(options)
+    std.log('options', redact(options))
     const transactions = await input(options)
     await output(transactions, options)
 }
@@ -236,6 +236,14 @@ async function output(
         default:
             throw new Error(`unknown output format: ${options.outputFormat}`)
     }
+}
+
+/**
+ * Returns a copy of the options safe for logging: secrets are masked.
+ */
+function redact<T extends {ghostfolioToken?: string}>(options: T): T {
+    if (!options.ghostfolioToken) return options
+    return {...options, ghostfolioToken: '***'}
 }
 
 export default {transform}
