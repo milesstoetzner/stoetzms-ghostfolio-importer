@@ -52,7 +52,7 @@ export default class Ghostfolio {
 
     private mapToSymbol(ISIN: string) {
         const symbol = this.map[ISIN]
-        if (!symbol) throw new Error(`no symbol for ISIN: ${ISIN}`)
+        if (!symbol) throw new Error(`no symbol for ISIN: ${ISIN} (add it to the map given by --ghostfolio-map)`)
         return symbol
     }
 }
