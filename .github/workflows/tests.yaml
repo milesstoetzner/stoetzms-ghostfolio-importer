@@ -35,6 +35,9 @@ jobs:
             #
             ###################################################
 
+            - name: (TEST) Check Types
+              run: yarn typecheck
+
             - name: (TEST) Check ESLint
               run: yarn lint
 
