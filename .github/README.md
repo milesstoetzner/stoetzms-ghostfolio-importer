@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![npm](https://img.shields.io/badge/npm-ghostfolio--importer-blue)](https://www.npmjs.com/package/ghostfolio-importer)
 
-`ghostfolio-importer` is a simple utility to import transactions from Scalable Capital and Trade Republic into Ghostfolio.
+`ghostfolio-importer` is a utility to import transactions from Scalable Capital and Trade Republic into Ghostfolio.
 
 ## Usage
 
