@@ -38,6 +38,7 @@ Import transactions from Scalable Capital.
 | input-dir      | true      | string             |             |
 | input-provider | true      | `scalable-capital` |             |
 | input-format   | true      | `pdf`              |             |
+| ignore-errors  | false     | flag               | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
 ### Trade Republic
 
@@ -49,6 +50,7 @@ Import transactions from Trade Republic.
 | input-dir      | true      | string           |             |
 | input-provider | true      | `trade-republic` |             |
 | input-format   | true      | `pdf`            |             |
+| ignore-errors  | false     | flag             | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
 ### None
 
