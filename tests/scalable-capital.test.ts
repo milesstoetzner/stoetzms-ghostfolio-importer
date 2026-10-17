@@ -21,6 +21,15 @@ describe('scalable-capital', () => {
         assert.equal(data._meta.file, 'buy.pdf')
     })
 
+    it('buy with thousands separators', () => {
+        const data = extract('buy-large')
+        assert.equal(data.type, TransactionType.BUY)
+        assert.equal(data.ISIN, 'LU1681048804')
+        assert.equal(data.quantity, 1250)
+        assert.equal(data.price, 1234.56)
+        assert.equal(data.currency, 'EUR')
+    })
+
     it('sell (tabular execution details)', () => {
         const data = extract('sell')
         assert.equal(data.type, TransactionType.SELL)
