@@ -1,0 +1,10 @@
+Scalable Capital GmbH
+Max Mustermann
+Dividendenabrechnung
+Depotnummer: 1234567890
+ISIN: IE00B4L5Y983
+iShares Core MSCI World UCITS ETF USD (Dist)             USD 0,45 p.STK
+STK 100
+Umrechnungskurs: EUR/USD 1,0850
+Ex-Tag: 13.06.2024
+Zahltag: 20.06.2024

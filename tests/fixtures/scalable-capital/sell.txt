@@ -1,0 +1,15 @@
+Scalable Capital GmbH
+Max Mustermann
+Wertpapierabrechnung: Verkauf
+Depotnummer: 1234567890
+ISIN: LU0908500753
+Amundi Stoxx Europe 600 UCITS ETF Acc
+Details zur Ausführung:
+Handels-  Handels-
+datum   uhrzeit
+Nominale Kurs Ausführungsplatz
+STK 5 EUR GETTEX - MM Munich 02.04.2024 09:05:01:00
+Kurs
+EUR
+240,30
+Kurswert EUR 1201,50

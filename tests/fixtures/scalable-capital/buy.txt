@@ -1,0 +1,18 @@
+Scalable Capital GmbH
+Max Mustermann
+Musterstraße 1
+12345 Musterstadt
+Wertpapierabrechnung: Kauf
+Depotnummer: 1234567890
+Auftragsnummer: 9876543210
+ISIN: IE00B4L5Y983
+iShares Core MSCI World UCITS ETF USD (Acc)
+Nominale
+STK 10,5
+Kurs
+EUR
+85,12
+Kurswert EUR 893,76
+Handelsdatum Handelsuhrzeit
+15.03.2024 10:15:22:11
+Ausführungsplatz: GETTEX - MM Munich
