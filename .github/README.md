@@ -52,11 +52,11 @@ Import transactions from Trade Republic.
 
 ### None
 
-Import transactions from a file using the internal transaction format.
+Import transactions from a file using the internal transaction format, e.g. one written by the `none` output provider.
 
 | Option         | Mandatory | Value          | Description |
 | -------------- | --------- | -------------- | ----------- |
-| input-file     | false     | string         |             |
+| input-file     | true      | string         |             |
 | input-provider | true      | `none`         |             |
 | input-format   | true      | `json`, `yaml` |             |
 
@@ -98,10 +98,11 @@ Export transactions for Ghostfolio ...
 
 Export transactions not for a specific provider but using the internal transaction format.
 
-| Option          | Mandatory | Value     | Description |
-| --------------- | --------- | --------- | ----------- |
-| output-provider | true      | `none`    |             |
-| output-format   | true      | `console` |             |
+| Option          | Mandatory | Value                     | Description                             |
+| --------------- | --------- | ------------------------- | --------------------------------------- |
+| output-provider | true      | `none`                    |                                         |
+| output-format   | true      | `console`, `json`, `yaml` |                                         |
+| output-file     | false     | string                    | Only used with `json` and `yaml` output |
 
 ## Limitations
 
