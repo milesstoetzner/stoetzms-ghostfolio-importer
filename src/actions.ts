@@ -115,7 +115,7 @@ async function readPdfs(
         }
     }
 
-    for (const failure of failures) std.log(`failed to read "${failure.file}"`, failure.error)
+    for (const failure of failures) std.error(`failed to read "${failure.file}"`, failure.error)
     if (failures.length > 0 && !options.ignoreErrors)
         throw new Error(
             `${failures.length} of ${files.length} PDF files could not be read (see above). ` +
@@ -248,7 +248,7 @@ async function output(
          * Throw
          */
         default:
-            throw new Error(`unknown output format: ${options.outputFormat}`)
+            throw new Error(`output provider "${options.outputProvider}" unknown`)
     }
 }
 
