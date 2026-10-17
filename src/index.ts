@@ -6,7 +6,7 @@ import config from './config'
 program
     .name('ghostfolio-importer')
     .description(
-        'ghostfolio-importer is a simple utility to import transactions from Scalable Capital and Trade Republic into Ghostfolio.'
+        'ghostfolio-importer is a utility to import transactions from Scalable Capital and Trade Republic into Ghostfolio.'
     )
     .version(config.version)
 
