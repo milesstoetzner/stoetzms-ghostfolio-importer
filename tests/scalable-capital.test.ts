@@ -1,6 +1,6 @@
 import {describe, it} from 'node:test'
 import assert from 'node:assert/strict'
-import ScalableCapital from '../src/inputs/scalable-capital'
+import ScalableCapital from '../src/extractors/scalable-capital'
 import {TransactionType} from '../src/types'
 import {fixture} from './fixtures'
 

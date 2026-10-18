@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import * as reader from 'pdf-text-reader'
-import ScalableCapital from '../src/inputs/scalable-capital'
-import TradeRepublic from '../src/inputs/trade-republic'
+import ScalableCapital from '../src/extractors/scalable-capital'
+import TradeRepublic from '../src/extractors/trade-republic'
 import {FIXTURES, fixture} from './fixtures'
 
 const EXAMPLES = path.join(import.meta.dirname, '..', 'examples', 'inputs')
