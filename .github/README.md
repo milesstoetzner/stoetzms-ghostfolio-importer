@@ -94,8 +94,8 @@ Ghostfolio identifies a security by its symbol at the data provider, not by ISIN
 
 | Option        | Mandatory | Value          | Description |
 | ------------- | --------- | -------------- | ----------- |
-| output-format | true      | `json`, `yaml` |             |
-| output-file   | true      | string         |             |
+| output-format | true      | `json`, `yaml` |                                                       |
+| output-file   | false     | string         | Defaults to `output.json` or `output.yaml` respectively |
 
 ... into Ghostfolio.
 
@@ -113,7 +113,7 @@ Export transactions not for a specific provider but using the internal transacti
 | --------------- | --------- | ------------------------- | --------------------------------------- |
 | output-provider | true      | `internal`                |                                         |
 | output-format   | true      | `console`, `json`, `yaml` |                                         |
-| output-file     | false     | string                    | Only used with `json` and `yaml` output |
+| output-file     | false     | string                    | Only used with `json` and `yaml` output, defaults to `output.<format>` |
 
 ## Development
 

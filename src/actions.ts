@@ -20,7 +20,7 @@ async function transform(options: {
     ignoreErrors?: boolean
     outputProvider: string
     outputFormat: string
-    outputFile: string
+    outputFile?: string
     ghostfolioAccountId?: string
     ghostfolioMap?: string
     ghostfolioEndpoint?: string
@@ -127,12 +127,19 @@ async function readPdfs(
     return transactions
 }
 
+/**
+ * The file to write for json and yaml output: --output-file, or output.<format> by default.
+ */
+function outputFile(options: {outputFormat: string; outputFile?: string}): string {
+    return path.resolve(options.outputFile ?? `output.${options.outputFormat}`)
+}
+
 async function output(
     transactions: Transaction[],
     options: {
         outputProvider: string
         outputFormat: string
-        outputFile: string
+        outputFile?: string
         ghostfolioAccountId?: string
         ghostfolioMap?: string
         ghostfolioEndpoint?: string
@@ -168,7 +175,7 @@ async function output(
                  * JSON
                  */
                 case 'json':
-                    await fs.writeFile(path.resolve(options.outputFile), JSON.stringify(ghost.data, null, 4))
+                    await fs.writeFile(outputFile(options), JSON.stringify(ghost.data, null, 4))
                     break
 
                 /**
@@ -176,7 +183,7 @@ async function output(
                  */
                 case 'yaml':
                     await fs.writeFile(
-                        path.resolve(options.outputFile),
+                        outputFile(options),
                         yaml.dump(ghost.data, {
                             noRefs: true,
                             styles: {
@@ -222,10 +229,7 @@ async function output(
 
                 case 'json':
                 case 'yaml':
-                    await fs.writeFile(
-                        path.resolve(options.outputFile),
-                        serializeTransactions(transactions, options.outputFormat)
-                    )
+                    await fs.writeFile(outputFile(options), serializeTransactions(transactions, options.outputFormat))
                     break
 
                 default:

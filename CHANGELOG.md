@@ -21,6 +21,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+-   `--output-format yaml` wrote YAML into `output.json`; the default output file is now `output.<format>`. (#22)
 -   Numbers with thousands separators, e.g. `1.234,56`, were read as 1.234, so quantities and prices of 1000 or more were imported about a thousand times too small. (#6)
 -   The `none` input provider crashed and `--input-file` was ignored. (#7)
 -   The Ghostfolio token was printed in plain text on stdout, which also broke piping the console output. (#9)
