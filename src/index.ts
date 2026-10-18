@@ -37,6 +37,17 @@ program
         'with --sync: also delete activities created by the importer that are no longer in the inputs',
         false
     )
+    .option(
+        '--watch',
+        'run once, then again whenever the input directory changes (endpoint format needs --sync)',
+        false
+    )
+    .option(
+        '--watch-debounce <ms>',
+        'wait this long after the last change before running again',
+        value => Number(value),
+        1000
+    )
     .action(hae.exit(async options => await actions.transform(options)))
 
 program.parse()
