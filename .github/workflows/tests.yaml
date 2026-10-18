@@ -2,8 +2,6 @@ name: Tests
 on:
     workflow_dispatch:
     pull_request:
-        branches:
-            - main
     push:
         branches:
             - main
@@ -11,7 +9,7 @@ on:
 jobs:
     tests:
         name: Tests
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         steps:
             ###################################################
             #
@@ -20,18 +18,16 @@ jobs:
             ###################################################
 
             - name: (PREPARE) Checkout Repository
-              uses: actions/checkout@v3
-              with:
-                  lfs: true
+              uses: actions/checkout@v7
 
             - name: (PREPARE) Setup Node
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v7
               with:
-                  node-version: 22
+                  node-version-file: .nvmrc
                   cache: yarn
 
             - name: (PREPARE) Install Node Modules
-              run: yarn
+              run: yarn install --frozen-lockfile
 
             ###################################################
             #
@@ -44,3 +40,6 @@ jobs:
 
             - name: (TEST) Check Prettier
               run: yarn format
+
+            - name: (TEST) Build
+              run: yarn build
