@@ -115,6 +115,45 @@ Export transactions not for a specific provider but using the internal transacti
 | output-format   | true      | `console`, `json`, `yaml` |                                         |
 | output-file     | false     | string                    | Only used with `json` and `yaml` output |
 
+## Development
+
+```
+yarn install
+yarn test          # unit tests, including the example PDFs below
+yarn typecheck
+yarn lint
+yarn format
+```
+
+### Example inputs
+
+`examples/inputs/<provider>/*.pdf` are synthetic broker documents, rendered from the text fixtures in `tests/fixtures` by `yarn examples:generate`. They contain no real data, but they have the layout the extractors expect, so the CLI can be exercised without real statements:
+
+```
+yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider none --output-format console
+```
+
+When you add or change a fixture, re-run `yarn examples:generate` and commit the PDFs; the tests check that both stay in sync.
+
+### Local Ghostfolio
+
+`dev/docker-compose.yaml` runs Ghostfolio with Postgres and Redis (Docker required):
+
+```
+yarn dev:up        # start, http://localhost:3333 is up after about a minute on the first run
+yarn dev:user      # create a user and print account id, bearer token and an import command
+yarn dev:logs
+yarn dev:down      # stop and delete all data
+```
+
+`yarn dev:user` creates a new Ghostfolio user and prints everything the importer needs. The security token it shows signs you in on the web UI to inspect the result; the bearer token goes into `--ghostfolio-token`, the import endpoint is `http://localhost:3333/api/v1/import`. Bearer tokens for another Ghostfolio instance can be obtained the same way, by exchanging the security token:
+
+```
+curl -X POST https://<ghostfolio>/api/v1/auth/anonymous -H 'Content-Type: application/json' -d '{"accessToken":"<security token>"}'
+```
+
+The credentials in `dev/ghostfolio.env` are for this throwaway instance only.
+
 ## Limitations
 
 -   We do not support fees.
