@@ -17,6 +17,7 @@ program
     .option('--input-filter <string>')
     .option('--input-provider <string>', '', 'scalable-capital')
     .option('--input-format <string>', '', 'pdf')
+    .option('--ignore-errors', 'skip input files that cannot be read instead of failing', false)
     .option('--output-provider <string>', '', 'ghostfolio')
     .option('--output-format <string>', '', 'json')
     .option('--output-file <string>', '', 'output.json')

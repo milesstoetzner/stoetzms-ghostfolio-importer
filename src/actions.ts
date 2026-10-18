@@ -17,6 +17,7 @@ async function transform(options: {
     inputFilter?: string
     inputProvider: string
     inputFormat: string
+    ignoreErrors?: boolean
     outputProvider: string
     outputFormat: string
     outputFile: string
@@ -36,59 +37,20 @@ async function input(options: {
     inputFilter?: string
     inputProvider: string
     inputFormat: string
+    ignoreErrors?: boolean
 }): Promise<Transaction[]> {
     switch (options.inputProvider) {
         /**
          * Scalable Capital
          */
-        case 'scalable-capital': {
-            if (options.inputFormat !== 'pdf')
-                throw new Error(
-                    `input provider "${options.inputProvider}" does not support input format "${options.inputFormat}"`
-                )
-
-            const transactions: Transaction[] = []
-            const files = await fs.readdir(path.resolve(options.inputDir))
-            for (const file of files) {
-                if (!file.endsWith('.pdf')) continue
-                if (options.inputFilter) if (!file.includes(options.inputFilter)) continue
-                try {
-                    const joined = path.join(options.inputDir, file)
-                    const raw = await reader.readPdfText({url: joined} as reader.ReadPdfTextParams)
-                    const extractor = new ScalableCapital(raw, joined)
-                    transactions.push(extractor.data)
-                } catch (e) {
-                    console.log(file, e)
-                }
-            }
-            return transactions
-        }
+        case 'scalable-capital':
+            return readPdfs(options, ScalableCapital)
 
         /**
          * Trade Republic
          */
-        case 'trade-republic': {
-            if (options.inputFormat !== 'pdf')
-                throw new Error(
-                    `input provider "${options.inputProvider}" does not support input format "${options.inputFormat}"`
-                )
-
-            const transactions: Transaction[] = []
-            const files = await fs.readdir(path.resolve(options.inputDir))
-            for (const file of files) {
-                if (!file.endsWith('.pdf')) continue
-                if (options.inputFilter) if (!file.includes(options.inputFilter)) continue
-                try {
-                    const joined = path.join(options.inputDir, file)
-                    const raw = await reader.readPdfText({url: joined} as reader.ReadPdfTextParams)
-                    const extractor = new TradeRepublic(raw, joined)
-                    transactions.push(extractor.data)
-                } catch (e) {
-                    console.log(file, e)
-                }
-            }
-            return transactions
-        }
+        case 'trade-republic':
+            return readPdfs(options, TradeRepublic)
 
         /**
          * None
@@ -110,6 +72,58 @@ async function input(options: {
         default:
             throw new Error(`input provider "${options.inputProvider}" unknown`)
     }
+}
+
+type Extractor = new (raw: string, file: string) => {data: Transaction}
+
+/**
+ * Reads every PDF in the input directory with the given extractor.
+ *
+ * A document that cannot be parsed fails the whole run, unless --ignore-errors is set, in which case it
+ * is reported on stderr and skipped. Silently dropping a transaction would produce a partial import.
+ */
+async function readPdfs(
+    options: {
+        inputDir: string
+        inputFilter?: string
+        inputProvider: string
+        inputFormat: string
+        ignoreErrors?: boolean
+    },
+    extractor: Extractor
+): Promise<Transaction[]> {
+    if (options.inputFormat !== 'pdf')
+        throw new Error(
+            `input provider "${options.inputProvider}" does not support input format "${options.inputFormat}"`
+        )
+
+    const dir = path.resolve(options.inputDir)
+    const files = (await fs.readdir(dir))
+        .filter(file => file.toLowerCase().endsWith('.pdf'))
+        .filter(file => !options.inputFilter || file.includes(options.inputFilter))
+        .sort()
+
+    const transactions: Transaction[] = []
+    const failures: {file: string; error: unknown}[] = []
+    for (const file of files) {
+        const joined = path.join(dir, file)
+        try {
+            const raw = await reader.readPdfText({url: joined} as reader.ReadPdfTextParams)
+            transactions.push(new extractor(raw, joined).data)
+        } catch (error) {
+            failures.push({file: joined, error})
+        }
+    }
+
+    for (const failure of failures) std.log(`failed to read "${failure.file}"`, failure.error)
+    if (failures.length > 0 && !options.ignoreErrors)
+        throw new Error(
+            `${failures.length} of ${files.length} PDF files could not be read (see above). ` +
+                `Use --input-filter to select files or --ignore-errors to skip them.`
+        )
+    if (files.length === 0) std.log(`no PDF files found in "${dir}"`)
+
+    return transactions
 }
 
 async function output(
