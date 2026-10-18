@@ -175,6 +175,10 @@ curl -X POST https://<ghostfolio>/api/v1/auth/anonymous -H 'Content-Type: applic
 
 The credentials in `dev/ghostfolio.env` are for this throwaway instance only.
 
+## Changelog
+
+See [CHANGELOG.md](../CHANGELOG.md).
+
 ## Limitations
 
 -   We do not support fees.
