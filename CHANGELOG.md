@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+-   `--input-provider scalable-capital --input-format json` reads the export of the official Scalable CLI (`sc broker transactions --json`), so Scalable Capital no longer needs PDFs. (#21)
 -   `--watch` runs the transform again whenever the input directory changes; with the endpoint format it requires `--sync`. `--watch-debounce` sets the quiet period. (#25)
 -   `--sync` makes the endpoint import idempotent: activities carry a fingerprint in their comment, and only those missing in the account are created, so the same PDF twice creates one activity. Byte-identical PDFs in the input directory are read once. `--prune` additionally deletes activities the importer created earlier that are no longer in the inputs. `--ghostfolio-endpoint` now accepts the Ghostfolio URL; the import URL still works. (#24)
 -   `--ignore-errors` to skip unreadable PDFs; skipped files are reported on stderr. (#10)
