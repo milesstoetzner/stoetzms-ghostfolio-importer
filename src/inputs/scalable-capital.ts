@@ -67,7 +67,7 @@ export default class ScalableCapital {
         if (isUndefined(this._quantity)) {
             const {raw} = this.extract<{raw: string}>(/STK (?<raw>\S+)/)
             if (isUndefined(raw)) throw new Error('no quantity')
-            this._quantity = parseNumber(raw)
+            this._quantity = parseNumber(raw, ',')
         }
         return this._quantity
     }
@@ -81,7 +81,7 @@ export default class ScalableCapital {
              * Umrechnungskurs: EUR/USD1,01234
              */
             const {raw} = this.extract<{raw: string}>(/Umrechnungskurs:\s+EUR\/USD\s*(?<raw>\S+)/)
-            if (raw) this._conversion = parseNumber(raw)
+            if (raw) this._conversion = parseNumber(raw, ',')
             this._conversion_extracted = true
         }
         return this._conversion
@@ -99,7 +99,7 @@ export default class ScalableCapital {
 
             const raw = a ?? b
             if (isUndefined(raw)) throw new Error('no price')
-            this._price = parseNumber(raw)
+            this._price = parseNumber(raw, ',')
         }
         return this._price
     }

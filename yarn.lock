@@ -563,6 +563,11 @@
   dependencies:
     undici-types "~6.21.0"
 
+"@types/parse-decimal-number@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/parse-decimal-number/-/parse-decimal-number-1.0.2.tgz#910ce49354fa38406813970ad82cc4a06bebd728"
+  integrity sha512-krudST+pqGhariDjyv2ILN2PD5IjAVIEs+XXn8kNlcdTesj0gGyGNIak97sb33tBLkRSP1e5IJgJ8FJEAJcJXg==
+
 "@types/resolve@1.20.2":
   version "1.20.2"
   resolved "https://registry.yarnpkg.com/@types/resolve/-/resolve-1.20.2.tgz#97d26e00cd4a0423b4af620abecf3e6f442b7975"
@@ -1352,6 +1357,11 @@ p-locate@^5.0.0:
   integrity sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==
   dependencies:
     p-limit "^3.0.2"
+
+parse-decimal-number@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/parse-decimal-number/-/parse-decimal-number-1.0.0.tgz#f9d48399ae98f207935fd13dcbbc87654d865a2f"
+  integrity sha512-EwPYS1ZGFGan8TFZaQSlaoxEdNrdPR+3lO2Ie8ZW0wb9ZUWGXQwR4chzYfTc2qq4SsB8isGIlp5gPKENFMLIgw==
 
 path-exists@^4.0.0:
   version "4.0.0"

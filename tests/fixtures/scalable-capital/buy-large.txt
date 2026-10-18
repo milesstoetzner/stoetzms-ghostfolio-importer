@@ -1,0 +1,14 @@
+Scalable Capital GmbH
+Max Mustermann
+Wertpapierabrechnung: Kauf
+Depotnummer: 1234567890
+ISIN: LU1681048804
+Amundi S&P 500 UCITS ETF
+Nominale
+STK 1.250
+Kurs
+EUR
+1.234,56
+Kurswert EUR 1.543.200,00
+Handelsdatum Handelsuhrzeit
+15.03.2024 10:15:22:11
