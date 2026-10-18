@@ -19,6 +19,9 @@ All notable changes to this project are documented here. The format follows
 -   Local development environment: Ghostfolio in Docker Compose (`yarn dev:up`), `yarn dev:user` for an account id and token, synthetic example PDFs in `examples/inputs`. (#13)
 -   Unit tests (`yarn test`), type checking (`yarn typecheck`) and the build run in CI; Dependabot keeps dependencies current. (#3, #5, #8)
 
+### Changed
+
+-   Input and output providers are classes behind a registry; unknown providers and unsupported formats are reported with the list of valid values, and the help text lists providers with their formats. Ghostfolio `console` output now prints JSON on stdout like the internal provider, instead of a debug dump on stderr. (#23)
 ### Fixed
 
 -   `--output-format yaml` wrote YAML into `output.json`; the default output file is now `output.<format>`. (#22)

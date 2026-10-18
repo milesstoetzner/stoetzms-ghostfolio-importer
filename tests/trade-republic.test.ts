@@ -1,6 +1,6 @@
 import {describe, it} from 'node:test'
 import assert from 'node:assert/strict'
-import TradeRepublic from '../src/inputs/trade-republic'
+import TradeRepublic from '../src/extractors/trade-republic'
 import {TransactionType} from '../src/types'
 import {fixture} from './fixtures'
 

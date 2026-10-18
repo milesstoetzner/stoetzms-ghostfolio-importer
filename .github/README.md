@@ -127,6 +127,10 @@ yarn format
 
 The provider was called `none` before; that name still works.
 
+### Adding a provider
+
+Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. PDF based inputs only need an extractor class in `src/extractors/` that turns the text of one document into one transaction, plus a fixture in `tests/fixtures/` for the tests and example PDFs. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
+
 ### Example inputs
 
 `examples/inputs/<provider>/*.pdf` are synthetic broker documents, rendered from the text fixtures in `tests/fixtures` by `yarn examples:generate`. They contain no real data, but they have the layout the extractors expect, so the CLI can be exercised without real statements:
