@@ -36,7 +36,7 @@ describe('provider registries', () => {
     })
 
     it('describes providers for the help text', () => {
-        assert.equal(inputs.describe(), 'scalable-capital (pdf), trade-republic (pdf), internal (json, yaml)')
+        assert.equal(inputs.describe(), 'scalable-capital (pdf, json), trade-republic (pdf), internal (json, yaml)')
         assert.equal(outputs.describe(), 'ghostfolio (console, json, yaml, endpoint), internal (console, json, yaml)')
     })
 })
