@@ -2,7 +2,7 @@
  * Renders the synthetic text fixtures in tests/fixtures as PDFs into examples/inputs, one document per
  * fixture, one text line per PDF line. The result extracts back to exactly the fixture text, so the
  * example PDFs can be fed to the CLI during development and are checked against the fixtures by the
- * tests. JSON fixtures are copied as they are.
+ * tests.
  *
  *   yarn examples:generate
  */
@@ -40,16 +40,10 @@ async function main() {
         const source = path.join(FIXTURES, provider.name)
         const target = path.join(EXAMPLES, provider.name)
         await fs.mkdir(target, {recursive: true})
-        for (const fixture of (await fs.readdir(source)).sort()) {
+        for (const fixture of (await fs.readdir(source)).filter(it => it.endsWith('.txt')).sort()) {
             const text = (await fs.readFile(path.join(source, fixture), 'utf-8')).trimEnd()
-            let file: string
-            if (fixture.endsWith('.txt')) {
-                file = path.join(target, fixture.replace(/\.txt$/, '.pdf'))
-                await fs.writeFile(file, await render(text))
-            } else if (fixture.endsWith('.json')) {
-                file = path.join(target, fixture)
-                await fs.writeFile(file, text + '\n')
-            } else continue
+            const file = path.join(target, fixture.replace(/\.txt$/, '.pdf'))
+            await fs.writeFile(file, await render(text))
             console.log(path.relative(ROOT, file))
         }
     }
