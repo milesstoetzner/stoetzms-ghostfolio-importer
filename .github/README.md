@@ -1,6 +1,6 @@
 # Ghostfolio Importer
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-blue.svg)](https://vintner.opentosca.org/code-of-conduct)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-blue.svg)](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![npm](https://img.shields.io/badge/npm-ghostfolio--importer-blue)](https://www.npmjs.com/package/ghostfolio-importer)
 

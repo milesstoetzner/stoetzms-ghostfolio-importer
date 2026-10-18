@@ -33,11 +33,18 @@ function detect(value: string) {
     return german ? [FORMATS[','], FORMATS['.']] : [FORMATS['.'], FORMATS[',']]
 }
 
+/**
+ * Builds midnight UTC of the given day. Documents carry no time zone, so the calendar day is kept as is.
+ */
 export function parseDate(day: string, month: string, year: string) {
-    const value = year + '-' + month + '-' + day + ' ' + '00:00:00 UTC'
-    const date = Date.parse(value)
-    if (isNaN(date)) throw new Error(`invalid date: ${value}`)
-    return new Date(date)
+    const value = `${year}-${month}-${day}`
+    const [y, m, d] = [Number(year), Number(month), Number(day)]
+    if (!/^\d{4}$/.test(year) || !/^\d{1,2}$/.test(month) || !/^\d{1,2}$/.test(day))
+        throw new Error(`invalid date: ${value}`)
+    const date = new Date(Date.UTC(y, m - 1, d))
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d)
+        throw new Error(`invalid date: ${value}`)
+    return date
 }
 
 export function convertPrice(price: number, rate?: number) {
@@ -46,7 +53,7 @@ export function convertPrice(price: number, rate?: number) {
 }
 
 export function isUndefined(element: unknown): element is undefined | null {
-    return typeof element === 'undefined' || element === null || element == null
+    return typeof element === 'undefined' || element === null
 }
 
 export function isDefined<T>(element: T | undefined | null): element is T {

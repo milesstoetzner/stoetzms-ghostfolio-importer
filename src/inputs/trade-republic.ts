@@ -164,7 +164,7 @@ export default class TradeRepublic {
              * 69.1234 Stücke 0.123 USD
              * DE1234567890
              */
-            const {raw: b} = this.extract<{raw: string}>(/\.*Stücke.*\n(?<raw>\S+)/)
+            const {raw: b} = this.extract<{raw: string}>(/Stücke.*\n(?<raw>\S+)/)
 
             const raw = a ?? b
             if (isUndefined(raw)) throw new Error(`no ISIN`)

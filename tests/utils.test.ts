@@ -30,6 +30,9 @@ describe('parseDate', () => {
     it('parses to midnight UTC', () =>
         assert.equal(parseDate('01', '02', '2024').toISOString(), '2024-02-01T00:00:00.000Z'))
     it('rejects an invalid date', () => assert.throws(() => parseDate('xx', '02', '2024'), /invalid date/))
+    it('rejects an impossible day', () => assert.throws(() => parseDate('31', '02', '2024'), /invalid date/))
+    it('keeps the calendar day regardless of local time zone', () =>
+        assert.equal(parseDate('31', '12', '2024').toISOString(), '2024-12-31T00:00:00.000Z'))
 })
 
 describe('convertPrice', () => {
