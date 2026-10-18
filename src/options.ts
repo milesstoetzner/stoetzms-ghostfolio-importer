@@ -1,7 +1,13 @@
 /**
  * Options of the transform command, as parsed by commander.
  */
-export type TransformOptions = InputOptions & OutputOptions
+export type TransformOptions = InputOptions &
+    OutputOptions & {
+        /** Keep running and repeat the transform whenever the input directory changes. */
+        watch?: boolean
+        /** Milliseconds to wait after the last change before running again. */
+        watchDebounce?: number
+    }
 
 export type InputOptions = {
     inputDir: string

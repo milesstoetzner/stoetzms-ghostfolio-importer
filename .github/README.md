@@ -26,6 +26,18 @@ We use the following internal format for transactions.
 | date     | true      | date                      |             |
 | _meta    | false     | any                       |             |
 
+### Watching a directory
+
+`--watch` runs the transform once and then again whenever the input directory changes, e.g. when a new statement is dropped into it. Bursts of changes (copying a file produces several events) are coalesced; `--watch-debounce <ms>` sets the quiet period, default 1000. A failing run is reported and the watch continues. Stop with Ctrl-C.
+
+With the Ghostfolio `endpoint` format, `--watch` requires `--sync`, otherwise every change would import everything again.
+
+```
+npx ghostfolio-importer transform --input-dir ~/statements --input-provider trade-republic \
+    --output-format endpoint --ghostfolio-endpoint https://ghostfol.io --ghostfolio-token ... \
+    --ghostfolio-account-id ... --ghostfolio-map map.json --sync --watch
+```
+
 ## Input Providers
 
 ### Scalable Capital
