@@ -40,25 +40,6 @@ Import transactions from Scalable Capital.
 | input-format   | true      | `pdf`              |             |
 | ignore-errors  | false     | flag               | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
-#### From the Scalable CLI
-
-Instead of PDFs, the transactions can come from the official [Scalable CLI](https://github.com/ScalableCapital/scalable-cli), which needs no PDF parsing. Log in once, then export:
-
-```
-sc broker transactions --json --page-size 100 > transactions.json
-npx ghostfolio-importer transform --input-provider scalable-capital --input-format json --input-file transactions.json ...
-```
-
-| Option         | Mandatory | Value              | Description                                                                 |
-| -------------- | --------- | ------------------ | --------------------------------------------------------------------------- |
-| input-file     | false     | string             | One exported file                                                           |
-| input-dir      | false     | string             | Without `input-file`: every `.json` file in this directory, e.g. one per page |
-| input-filter   | false     | string             |                                                                             |
-| input-provider | true      | `scalable-capital` |                                                                             |
-| input-format   | true      | `json`             |                                                                             |
-
-The CLI paginates; when `cursor` in the output is not `null`, export the next page with `--cursor <value>` into another file and point `input-dir` at the directory. Filled or settled buys, sells (including savings plan executions) and distributions are imported, everything else is skipped and reported on stderr. Because the export is a summary without a price per share, the unit price is `amount / quantity` and a distribution is imported with quantity 1 and the paid amount as price. The date is the transaction's last event, which is the settlement rather than the trade date.
-
 ### Trade Republic
 
 Import transactions from Trade Republic.
@@ -181,7 +162,7 @@ The credentials in `dev/ghostfolio.env` are for this throwaway instance only.
 -   We do not support taxes.
 -   We do only support EUR and USD.
 -   We do rely on a config to map ISINs to symbols that Ghostfolio understands.
--   We do rely on transactions provided by PDF, except for Scalable Capital where the Scalable CLI export is supported as well.
+-   We do rely on transactions provided by PDF.
 
 ## Similar Projects
 
