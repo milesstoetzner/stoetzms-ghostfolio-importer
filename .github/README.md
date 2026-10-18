@@ -73,7 +73,16 @@ Export transactions for Ghostfolio ...
 | output-provider       | true      | `ghostfolio`                          |             |
 | output-format         | true      | `console`, `yaml`, `json`, `endpoint` |             |
 | ghostfolio-account-id | true      | string                                |             |
-| ghostfolio-map        | false     | string                                |             |
+| ghostfolio-map        | true      | string                                | Path to a JSON file mapping ISINs to Yahoo symbols |
+
+Ghostfolio identifies a security by its symbol at the data provider, not by ISIN, so every ISIN that occurs in the input needs an entry in the map. The run fails on the first ISIN without one. A starting point with a few common ETFs is in [`examples/ghostfolio-map.json`](../examples/ghostfolio-map.json):
+
+```json
+{
+    "IE00B4L5Y983": "EUNL.DE",
+    "LU0908500753": "MEUD.PA"
+}
+```
 
 ... into the console.
 
