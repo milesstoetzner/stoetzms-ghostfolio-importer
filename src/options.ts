@@ -20,4 +20,8 @@ export type OutputOptions = {
     ghostfolioMap?: string
     ghostfolioEndpoint?: string
     ghostfolioToken?: string
+    /** With the endpoint format: only create activities that are not in Ghostfolio yet. */
+    sync?: boolean
+    /** With --sync: also delete activities the importer created earlier that are no longer in the inputs. */
+    prune?: boolean
 }
