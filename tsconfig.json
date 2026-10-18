@@ -1,11 +1,15 @@
 {
     "extends": "@tsconfig/node22/tsconfig.json",
     "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
         "outDir": "dist",
         "esModuleInterop": true,
-        "moduleResolution": "node",
         "strict": true,
+        "noImplicitReturns": true,
         "skipLibCheck": true,
-        "resolveJsonModule": true
-    }
+        "resolveJsonModule": true,
+        "noEmit": true
+    },
+    "include": ["src", "tests"]
 }

@@ -19,7 +19,8 @@
         "lint": "yarn eslint src tests",
         "format": "yarn prettier --check .",
         "format:write": "yarn prettier --write .",
-        "test": "tsx --test \"tests/**/*.test.ts\""
+        "test": "tsx --test \"tests/**/*.test.ts\"",
+        "typecheck": "tsc"
     },
     "dependencies": {
         "axios": "^1.20.0",
