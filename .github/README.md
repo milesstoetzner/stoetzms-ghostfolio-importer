@@ -99,11 +99,17 @@ Ghostfolio identifies a security by its symbol at the data provider, not by ISIN
 
 ... into Ghostfolio.
 
-| Option              | Mandatory | Value      | Description |
-| ------------------- | --------- | ---------- | ----------- |
-| output-format       | true      | `endpoint` |             |
-| ghostfolio-endpoint | true      | string     |             |
-| ghostfolio-token    | true      | string     |             |
+| Option              | Mandatory | Value      | Description                                                                                            |
+| ------------------- | --------- | ---------- | ------------------------------------------------------------------------------------------------------ |
+| output-format       | true      | `endpoint` |                                                                                                        |
+| ghostfolio-endpoint | true      | string     | The Ghostfolio URL, e.g. `https://ghostfol.io` (the full import URL `.../api/v1/import` works as well) |
+| ghostfolio-token    | true      | string     | Bearer token, see [Local Ghostfolio](#local-ghostfolio) for how to get one                            |
+| sync                | false     | flag       | Only create activities that are not in Ghostfolio yet                                                  |
+| prune               | false     | flag       | With `sync`: also delete activities the importer created earlier that are no longer in the inputs      |
+
+Without `--sync` every run imports every transaction again, so running twice creates duplicates. With `--sync` the import is idempotent: every activity the importer writes carries a fingerprint of the transaction in its comment (`[id:…]`), computed from provider, ISIN, type, date, quantity, price and currency. On the next run the activities of the account are fetched, those whose fingerprint is already present are left alone, and only the missing ones are created. The same PDF twice therefore creates one activity.
+
+With `--prune` the inputs become the declared state of the account: activities the importer created earlier whose fingerprint no longer appears in the inputs are deleted. Activities without a fingerprint, i.e. everything you entered by hand or imported otherwise, are never touched. Without `--prune` such stale activities are only reported on stderr.
 
 ### Internal
 
