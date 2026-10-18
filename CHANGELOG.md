@@ -14,7 +14,6 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
--   `--input-provider scalable-capital --input-format json` reads the export of the official Scalable CLI (`sc broker transactions --json`), so Scalable Capital no longer needs PDFs. (#14)
 -   `--ignore-errors` to skip unreadable PDFs; skipped files are reported on stderr. (#10)
 -   The `internal` output provider writes `json` and `yaml` files in addition to `console`. (#7)
 -   Local development environment: Ghostfolio in Docker Compose (`yarn dev:up`), `yarn dev:user` for an account id and token, synthetic example PDFs in `examples/inputs`. (#13)
