@@ -71,14 +71,14 @@ Import transactions from Trade Republic.
 | input-format   | true      | `pdf`            |             |
 | ignore-errors  | false     | flag             | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
-### None
+### Internal
 
-Import transactions from a file using the internal transaction format, e.g. one written by the `none` output provider.
+Import transactions from a file using the internal transaction format, e.g. one written by the `internal` output provider.
 
 | Option         | Mandatory | Value          | Description |
 | -------------- | --------- | -------------- | ----------- |
 | input-file     | true      | string         |             |
-| input-provider | true      | `none`         |             |
+| input-provider | true      | `internal`     |             |
 | input-format   | true      | `json`, `yaml` |             |
 
 ## Output Providers
@@ -124,13 +124,13 @@ Ghostfolio identifies a security by its symbol at the data provider, not by ISIN
 | ghostfolio-endpoint | true      | string     |             |
 | ghostfolio-token    | true      | string     |             |
 
-### None
+### Internal
 
 Export transactions not for a specific provider but using the internal transaction format.
 
 | Option          | Mandatory | Value                     | Description                             |
 | --------------- | --------- | ------------------------- | --------------------------------------- |
-| output-provider | true      | `none`                    |                                         |
+| output-provider | true      | `internal`                |                                         |
 | output-format   | true      | `console`, `json`, `yaml` |                                         |
 | output-file     | false     | string                    | Only used with `json` and `yaml` output |
 
@@ -144,12 +144,14 @@ yarn lint
 yarn format
 ```
 
+The provider was called `none` before; that name still works.
+
 ### Example inputs
 
 `examples/inputs/<provider>/*.pdf` are synthetic broker documents, rendered from the text fixtures in `tests/fixtures` by `yarn examples:generate`. They contain no real data, but they have the layout the extractors expect, so the CLI can be exercised without real statements:
 
 ```
-yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider none --output-format console
+yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider internal --output-format console
 ```
 
 When you add or change a fixture, re-run `yarn examples:generate` and commit the PDFs; the tests check that both stay in sync.

@@ -1,7 +1,7 @@
 import {describe, it} from 'node:test'
 import assert from 'node:assert/strict'
-import {parseTransactions} from '../src/inputs/none'
-import {serializeTransactions} from '../src/outputs/none'
+import {parseTransactions} from '../src/inputs/internal'
+import {serializeTransactions} from '../src/outputs/internal'
 import {Transaction, TransactionType} from '../src/types'
 
 const transactions: Transaction[] = [
@@ -24,7 +24,7 @@ const transactions: Transaction[] = [
     },
 ]
 
-describe('none provider', () => {
+describe('internal provider', () => {
     for (const format of ['json', 'yaml'] as const) {
         it(`round-trips ${format}`, () => {
             const text = serializeTransactions(transactions, format)

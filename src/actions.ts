@@ -8,9 +8,9 @@ import {Transaction} from './types'
 import * as yaml from 'js-yaml'
 import axios from 'axios'
 import TradeRepublic from './inputs/trade-republic'
-import {parseTransactions} from './inputs/none'
+import {parseTransactions} from './inputs/internal'
 import {parseScalableCapitalJson} from './inputs/scalable-capital-json'
-import {serializeTransactions} from './outputs/none'
+import {serializeTransactions} from './outputs/internal'
 
 async function transform(options: {
     inputDir: string
@@ -55,8 +55,9 @@ async function input(options: {
             return readPdfs(options, TradeRepublic)
 
         /**
-         * None
+         * Internal format ("none" is the former name)
          */
+        case 'internal':
         case 'none': {
             if (options.inputFormat !== 'json' && options.inputFormat !== 'yaml')
                 throw new Error(
@@ -253,8 +254,9 @@ async function output(
         }
 
         /**
-         * None
+         * Internal format ("none" is the former name)
          */
+        case 'internal':
         case 'none':
             switch (options.outputFormat) {
                 case 'console':

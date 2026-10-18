@@ -1,12 +1,12 @@
 import * as yaml from 'js-yaml'
 import {Transaction, TransactionType} from '../types'
 
-export type NoneInputFormat = 'json' | 'yaml'
+export type InternalInputFormat = 'json' | 'yaml'
 
 /**
- * Parses transactions in the internal format, as written by the "none" output provider.
+ * Parses transactions in the internal format, as written by the "internal" output provider.
  */
-export function parseTransactions(text: string, format: NoneInputFormat): Transaction[] {
+export function parseTransactions(text: string, format: InternalInputFormat): Transaction[] {
     const parsed = format === 'json' ? JSON.parse(text) : yaml.load(text)
     if (!Array.isArray(parsed)) throw new Error(`expected a list of transactions`)
     return parsed.map((entry, index) => parseTransaction(entry, index))
