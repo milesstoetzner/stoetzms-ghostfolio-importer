@@ -74,6 +74,7 @@
         "package.json",
         "LICENSE",
         "README.md",
+        "CHANGELOG.md",
         "dist/**/*"
     ]
 }
