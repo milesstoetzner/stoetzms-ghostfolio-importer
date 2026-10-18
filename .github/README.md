@@ -40,6 +40,25 @@ Import transactions from Scalable Capital.
 | input-format   | true      | `pdf`              |             |
 | ignore-errors  | false     | flag               | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
+#### From the Scalable CLI
+
+Instead of PDFs, the transactions can come from the official [Scalable CLI](https://github.com/ScalableCapital/scalable-cli), which needs no PDF parsing. Log in once, then export:
+
+```
+sc broker transactions --json --page-size 100 > transactions.json
+npx ghostfolio-importer transform --input-provider scalable-capital --input-format json --input-file transactions.json ...
+```
+
+| Option         | Mandatory | Value              | Description                                                                 |
+| -------------- | --------- | ------------------ | --------------------------------------------------------------------------- |
+| input-file     | false     | string             | One exported file                                                           |
+| input-dir      | false     | string             | Without `input-file`: every `.json` file in this directory, e.g. one per page |
+| input-filter   | false     | string             |                                                                             |
+| input-provider | true      | `scalable-capital` |                                                                             |
+| input-format   | true      | `json`             |                                                                             |
+
+The CLI paginates; when `cursor` in the output is not `null`, export the next page with `--cursor <value>` into another file and point `input-dir` at the directory. Filled or settled buys, sells (including savings plan executions) and distributions are imported, everything else is skipped and reported on stderr. Because the export is a summary without a price per share, the unit price is `amount / quantity` and a distribution is imported with quantity 1 and the paid amount as price. The date is the transaction's last event, which is the settlement rather than the trade date.
+
 ### Trade Republic
 
 Import transactions from Trade Republic.
@@ -52,14 +71,14 @@ Import transactions from Trade Republic.
 | input-format   | true      | `pdf`            |             |
 | ignore-errors  | false     | flag             | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
-### None
+### Internal
 
-Import transactions from a file using the internal transaction format, e.g. one written by the `none` output provider.
+Import transactions from a file using the internal transaction format, e.g. one written by the `internal` output provider.
 
 | Option         | Mandatory | Value          | Description |
 | -------------- | --------- | -------------- | ----------- |
 | input-file     | true      | string         |             |
-| input-provider | true      | `none`         |             |
+| input-provider | true      | `internal`     |             |
 | input-format   | true      | `json`, `yaml` |             |
 
 ## Output Providers
@@ -105,13 +124,13 @@ Ghostfolio identifies a security by its symbol at the data provider, not by ISIN
 | ghostfolio-endpoint | true      | string     |             |
 | ghostfolio-token    | true      | string     |             |
 
-### None
+### Internal
 
 Export transactions not for a specific provider but using the internal transaction format.
 
 | Option          | Mandatory | Value                     | Description                             |
 | --------------- | --------- | ------------------------- | --------------------------------------- |
-| output-provider | true      | `none`                    |                                         |
+| output-provider | true      | `internal`                |                                         |
 | output-format   | true      | `console`, `json`, `yaml` |                                         |
 | output-file     | false     | string                    | Only used with `json` and `yaml` output |
 
@@ -125,12 +144,14 @@ yarn lint
 yarn format
 ```
 
+The provider was called `none` before; that name still works.
+
 ### Example inputs
 
 `examples/inputs/<provider>/*.pdf` are synthetic broker documents, rendered from the text fixtures in `tests/fixtures` by `yarn examples:generate`. They contain no real data, but they have the layout the extractors expect, so the CLI can be exercised without real statements:
 
 ```
-yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider none --output-format console
+yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider internal --output-format console
 ```
 
 When you add or change a fixture, re-run `yarn examples:generate` and commit the PDFs; the tests check that both stay in sync.
@@ -160,7 +181,7 @@ The credentials in `dev/ghostfolio.env` are for this throwaway instance only.
 -   We do not support taxes.
 -   We do only support EUR and USD.
 -   We do rely on a config to map ISINs to symbols that Ghostfolio understands.
--   We do rely on transactions provided by PDF.
+-   We do rely on transactions provided by PDF, except for Scalable Capital where the Scalable CLI export is supported as well.
 
 ## Similar Projects
 

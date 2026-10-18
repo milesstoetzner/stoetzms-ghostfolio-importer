@@ -8,8 +8,9 @@ import {Transaction} from './types'
 import * as yaml from 'js-yaml'
 import axios from 'axios'
 import TradeRepublic from './inputs/trade-republic'
-import {parseTransactions} from './inputs/none'
-import {serializeTransactions} from './outputs/none'
+import {parseTransactions} from './inputs/internal'
+import {parseScalableCapitalJson} from './inputs/scalable-capital-json'
+import {serializeTransactions} from './outputs/internal'
 
 async function transform(options: {
     inputDir: string
@@ -44,6 +45,7 @@ async function input(options: {
          * Scalable Capital
          */
         case 'scalable-capital':
+            if (options.inputFormat === 'json') return readScalableCapitalJson(options)
             return readPdfs(options, ScalableCapital)
 
         /**
@@ -53,8 +55,9 @@ async function input(options: {
             return readPdfs(options, TradeRepublic)
 
         /**
-         * None
+         * Internal format ("none" is the former name)
          */
+        case 'internal':
         case 'none': {
             if (options.inputFormat !== 'json' && options.inputFormat !== 'yaml')
                 throw new Error(
@@ -124,6 +127,47 @@ async function readPdfs(
     if (files.length === 0) std.log(`no PDF files found in "${dir}"`)
 
     return transactions
+}
+
+/**
+ * Reads the JSON printed by "sc broker transactions --json", either one --input-file or every .json
+ * file in --input-dir (one per page of the CLI's pagination).
+ */
+async function readScalableCapitalJson(options: {
+    inputDir: string
+    inputFile?: string
+    inputFilter?: string
+}): Promise<Transaction[]> {
+    const files: string[] = []
+    if (options.inputFile) {
+        files.push(path.resolve(options.inputFile))
+    } else {
+        const dir = path.resolve(options.inputDir)
+        for (const file of (await fs.readdir(dir)).sort()) {
+            if (!file.toLowerCase().endsWith('.json')) continue
+            if (options.inputFilter && !file.includes(options.inputFilter)) continue
+            files.push(path.join(dir, file))
+        }
+        if (files.length === 0) std.log(`no JSON files found in "${dir}"`)
+    }
+
+    const transactions: Transaction[] = []
+    for (const file of files) {
+        const result = parseScalableCapitalJson(await fs.readFile(file, 'utf-8'), file)
+        transactions.push(...result.transactions)
+        if (result.skipped.length > 0)
+            std.log(
+                `"${file}": skipped ${result.skipped.length} of ${result.skipped.length + result.transactions.length} entries ` +
+                    `(${summarize(result.skipped.map(it => it.reason))})`
+            )
+    }
+    return transactions
+}
+
+function summarize(reasons: string[]): string {
+    const counts = new Map<string, number>()
+    for (const reason of reasons) counts.set(reason, (counts.get(reason) ?? 0) + 1)
+    return [...counts.entries()].map(([reason, count]) => `${count}× ${reason}`).join(', ')
 }
 
 async function output(
@@ -210,8 +254,9 @@ async function output(
         }
 
         /**
-         * None
+         * Internal format ("none" is the former name)
          */
+        case 'internal':
         case 'none':
             switch (options.outputFormat) {
                 case 'console':
