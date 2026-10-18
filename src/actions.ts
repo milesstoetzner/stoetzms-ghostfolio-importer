@@ -8,6 +8,8 @@ import {Transaction} from './types'
 import * as yaml from 'js-yaml'
 import axios from 'axios'
 import TradeRepublic from './inputs/trade-republic'
+import {parseTransactions} from './inputs/none'
+import {serializeTransactions} from './outputs/none'
 
 async function transform(options: {
     inputDir: string
@@ -91,20 +93,16 @@ async function input(options: {
         /**
          * None
          */
-        case 'none':
-            switch (options.inputFormat) {
-                case 'json':
-                    // TODO: this
-                    break
-                case 'yaml':
-                    // TODO: this
-                    break
-                default:
-                    throw new Error(
-                        `input provider "${options.inputProvider}" does not support input format "${options.inputFormat}"`
-                    )
-            }
-            break
+        case 'none': {
+            if (options.inputFormat !== 'json' && options.inputFormat !== 'yaml')
+                throw new Error(
+                    `input provider "${options.inputProvider}" does not support input format "${options.inputFormat}"`
+                )
+            if (!options.inputFile) throw new Error(`no input file`)
+
+            const text = await fs.readFile(path.resolve(options.inputFile), 'utf-8')
+            return parseTransactions(text, options.inputFormat)
+        }
 
         /**
          * Throw
@@ -212,7 +210,24 @@ async function output(
          * None
          */
         case 'none':
-            std.out(JSON.stringify(transactions, null, 4))
+            switch (options.outputFormat) {
+                case 'console':
+                    std.out(serializeTransactions(transactions, 'json'))
+                    break
+
+                case 'json':
+                case 'yaml':
+                    await fs.writeFile(
+                        path.resolve(options.outputFile),
+                        serializeTransactions(transactions, options.outputFormat)
+                    )
+                    break
+
+                default:
+                    throw new Error(
+                        `output provider "${options.outputProvider}" does not support output format "${options.outputFormat}"`
+                    )
+            }
             break
 
         /**
