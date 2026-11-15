@@ -1,6 +1,7 @@
 import * as reader from 'pdf-text-reader'
 import path from 'node:path'
 import fs from 'node:fs/promises'
+import {createHash} from 'node:crypto'
 import {Transaction} from '../types'
 import {InputOptions} from '../options'
 import std from '../utils/std'
@@ -15,6 +16,9 @@ export type Extractor = new (raw: string, file: string) => {data: Transaction}
  *
  * A document that cannot be parsed fails the whole run, unless --ignore-errors is set, in which case it
  * is reported on stderr and skipped. Silently dropping a transaction would produce a partial import.
+ *
+ * Byte-identical files are read once: the same statement downloaded or copied twice is one transaction.
+ * Different documents that happen to describe identical transactions are kept apart.
  */
 export async function readPdfs(options: InputOptions, extractor: Extractor): Promise<Transaction[]> {
     const dir = path.resolve(options.inputDir)
@@ -25,9 +29,20 @@ export async function readPdfs(options: InputOptions, extractor: Extractor): Pro
 
     const transactions: Transaction[] = []
     const failures: {file: string; error: unknown}[] = []
+    const seen = new Map<string, string>()
     for (const file of files) {
         const joined = path.join(dir, file)
         try {
+            const hash = createHash('sha256')
+                .update(await fs.readFile(joined))
+                .digest('hex')
+            const first = seen.get(hash)
+            if (first) {
+                std.log(`skipping "${joined}", identical to "${first}"`)
+                continue
+            }
+            seen.set(hash, joined)
+
             const raw = await reader.readPdfText({url: joined} as reader.ReadPdfTextParams)
             transactions.push(new extractor(raw, joined).data)
         } catch (error) {

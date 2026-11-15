@@ -26,8 +26,17 @@ program
     .option('--output-file <path>', 'defaults to output.<output-format> for file formats')
     .option('--ghostfolio-account-id <id>', 'account to import into')
     .option('--ghostfolio-map <path>', 'JSON file mapping ISINs to symbols')
-    .option('--ghostfolio-endpoint <url>', 'import endpoint, e.g. http://localhost:3333/api/v1/import')
+    .option(
+        '--ghostfolio-endpoint <url>',
+        'Ghostfolio URL, e.g. http://localhost:3333 (the import endpoint URL works too)'
+    )
     .option('--ghostfolio-token <token>', 'bearer token')
+    .option('--sync', 'endpoint only: create only activities missing in Ghostfolio, so re-runs are idempotent', false)
+    .option(
+        '--prune',
+        'with --sync: also delete activities created by the importer that are no longer in the inputs',
+        false
+    )
     .action(hae.exit(async options => await actions.transform(options)))
 
 program.parse()
