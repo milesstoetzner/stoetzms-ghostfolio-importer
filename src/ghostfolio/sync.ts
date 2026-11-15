@@ -7,31 +7,28 @@ export type SyncPlan = {
     create: GhostfolioActivity[]
     /** Desired activities already present, left untouched. */
     keep: GhostfolioActivity[]
-    /** Activities written by the importer earlier for the same providers that no longer appear in the inputs. */
+    /** Activities written by the importer earlier for the same provider that no longer appear in the inputs. */
     stale: ExistingActivity[]
-    /** The providers of the inputs; only their activities are compared. */
-    providers: string[]
 }
 
 /**
  * Compares the desired activities with those already in the account. Activities are matched by the
  * fingerprint in their comment; activities without one were not written by the importer and are never
- * touched. Only activities of the providers in the inputs are compared, so several brokers can sync into
- * one account without pruning each other's activities.
+ * touched. Only activities of the given input provider are compared, so several providers can sync into
+ * one account without pruning each other's activities. Without desired activities nothing is stale.
  */
-export function plan(desired: GhostfolioActivity[], existing: ExistingActivity[]): SyncPlan {
+export function plan(desired: GhostfolioActivity[], existing: ExistingActivity[], provider: string): SyncPlan {
     const desiredFingerprints = new Set<string>()
     for (const activity of desired) {
         const fingerprint = extractFingerprint(activity.comment)
         if (!fingerprint) throw new Error(`activity without fingerprint: ${JSON.stringify(activity)}`)
         desiredFingerprints.add(fingerprint)
     }
-    const providers = new Set([...desiredFingerprints].map(providerOf))
 
     const existingByFingerprint = new Map<string, ExistingActivity>()
     for (const activity of existing) {
         const fingerprint = extractFingerprint(activity.comment)
-        if (fingerprint && providers.has(providerOf(fingerprint))) existingByFingerprint.set(fingerprint, activity)
+        if (fingerprint && providerOf(fingerprint) === provider) existingByFingerprint.set(fingerprint, activity)
     }
 
     const create: GhostfolioActivity[] = []
@@ -45,5 +42,5 @@ export function plan(desired: GhostfolioActivity[], existing: ExistingActivity[]
         .filter(([fingerprint]) => !desiredFingerprints.has(fingerprint))
         .map(([, activity]) => activity)
 
-    return {create, keep, stale, providers: [...providers]}
+    return {create, keep, stale: desired.length > 0 ? stale : []}
 }

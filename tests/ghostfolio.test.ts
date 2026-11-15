@@ -18,6 +18,7 @@ describe('ghostfolio', () => {
             accountId: 'account',
             transactions: [transaction],
             map: {IE00B4L5Y983: 'EUNL.DE'},
+            provider: 'scalable-capital',
         })
         assert.equal(ghost.data.activities.length, 1)
         const activity = ghost.data.activities[0]
@@ -33,7 +34,12 @@ describe('ghostfolio', () => {
     })
 
     it('fails on an unmapped ISIN', () => {
-        const ghost = new Ghostfolio({accountId: 'account', transactions: [transaction], map: {}})
+        const ghost = new Ghostfolio({
+            accountId: 'account',
+            transactions: [transaction],
+            map: {},
+            provider: 'scalable-capital',
+        })
         assert.throws(() => ghost.data, /no symbol for ISIN: IE00B4L5Y983/)
     })
 })

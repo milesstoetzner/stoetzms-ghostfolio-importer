@@ -20,7 +20,12 @@ export class GhostfolioOutput implements OutputProvider {
             ? JSON.parse(await fs.readFile(path.resolve(options.ghostfolioMap), 'utf-8'))
             : {}
 
-        const ghost = new Ghostfolio({accountId: options.ghostfolioAccountId, transactions, map})
+        const ghost = new Ghostfolio({
+            accountId: options.ghostfolioAccountId,
+            transactions,
+            map,
+            provider: options.inputProvider ?? 'unknown',
+        })
 
         if (options.outputFormat === 'endpoint') {
             if (!options.ghostfolioEndpoint) throw new Error(`no ghostfolio endpoint`)
@@ -41,17 +46,18 @@ export class GhostfolioOutput implements OutputProvider {
 
 /**
  * Brings the account in line with the inputs: creates what is missing, leaves what is already there,
- * and with --prune deletes what the importer created earlier for the same providers but is no longer in
- * the inputs. Activities not created by the importer, or by it for another provider, are never touched.
- * Without inputs there is no provider, so nothing is pruned.
+ * and with --prune deletes what the importer created earlier for the same input provider but is no longer
+ * in the inputs. Activities not created by the importer, or by it for another input provider, are never
+ * touched. Without inputs nothing is pruned, which protects against pointing at an empty directory.
  */
 async function sync(client: GhostfolioClient, ghost: Ghostfolio, options: OutputOptions): Promise<void> {
     const accountId = options.ghostfolioAccountId!
     const existing = await client.activities(accountId)
-    const {create, keep, stale, providers} = plan(ghost.data.activities, existing)
+    const provider = options.inputProvider ?? 'unknown'
+    const {create, keep, stale} = plan(ghost.data.activities, existing, provider)
 
     std.log(
-        `sync (${providers.join(', ') || 'no inputs'}): ${ghost.data.activities.length} in inputs, ` +
+        `sync (${provider}): ${ghost.data.activities.length} in inputs, ` +
             `${existing.length} in account, ${keep.length} already present, ${create.length} to create, ${stale.length} stale`
     )
 

@@ -13,7 +13,7 @@ async function transform(options: TransformOptions) {
     const output = outputs.resolve(options.outputProvider, options.outputFormat)
 
     const transactions = await input.read(options)
-    await output.write(transactions, options)
+    await output.write(transactions, {...options, inputProvider: input.name})
 }
 
 /**

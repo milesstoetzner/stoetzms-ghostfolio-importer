@@ -25,17 +25,19 @@ export default class Ghostfolio {
     private readonly accountId: string
     private readonly transactions: Transaction[]
     private readonly map: GhostfolioMap
+    private readonly provider: string
 
-    constructor(data: {accountId: string; transactions: Transaction[]; map: GhostfolioMap}) {
+    constructor(data: {accountId: string; transactions: Transaction[]; map: GhostfolioMap; provider: string}) {
         this.accountId = data.accountId
         this.transactions = data.transactions
         this.map = data.map
+        this.provider = data.provider
     }
 
     private _data?: GhostfolioData
     get data(): GhostfolioData {
         if (!this._data) {
-            const ids = fingerprints(this.transactions)
+            const ids = fingerprints(this.transactions, this.provider)
             this._data = {
                 activities: this.transactions.map((it, index) => ({
                     accountId: this.accountId,

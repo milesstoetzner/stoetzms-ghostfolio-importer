@@ -24,4 +24,6 @@ export type OutputOptions = {
     sync?: boolean
     /** With --sync: also delete activities the importer created earlier that are no longer in the inputs. */
     prune?: boolean
+    /** The resolved name of the input provider: the prefix of fingerprints and the scope of --sync and --prune. */
+    inputProvider?: string
 }

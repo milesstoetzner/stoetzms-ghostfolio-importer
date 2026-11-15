@@ -18,14 +18,18 @@ const buy: Transaction = {
 
 describe('fingerprints', () => {
     it('are stable and independent of the file', () => {
-        const [a] = fingerprints([buy])
-        const [b] = fingerprints([{...buy, _meta: {provider: 'scalable-capital', file: '/elsewhere/copy.pdf'}}])
+        const [a] = fingerprints([buy], 'scalable-capital')
+        const [b] = fingerprints(
+            [{...buy, _meta: {provider: 'scalable-capital', file: '/elsewhere/copy.pdf'}}],
+            'scalable-capital'
+        )
         assert.equal(a, b)
         assert.match(a, /^scalable-capital:[0-9a-f]{16}$/)
     })
 
     it('change with any business field', () => {
-        const [a] = fingerprints([buy])
+        const [a] = fingerprints([buy], 'scalable-capital')
+        assert.notEqual(fingerprints([buy], 'internal')[0], a)
         for (const change of [
             {quantity: 3},
             {price: 85.13},
@@ -33,15 +37,15 @@ describe('fingerprints', () => {
             {type: TransactionType.SELL},
             {ISIN: 'X'},
         ])
-            assert.notEqual(fingerprints([{...buy, ...change}])[0], a)
-        assert.notEqual(fingerprints([{...buy, date: new Date('2024-03-16T00:00:00.000Z')}])[0], a)
+            assert.notEqual(fingerprints([{...buy, ...change}], 'scalable-capital')[0], a)
+        assert.notEqual(fingerprints([{...buy, date: new Date('2024-03-16T00:00:00.000Z')}], 'scalable-capital')[0], a)
     })
 
     it('keep identical transactions distinct but stable', () => {
-        const [a, b] = fingerprints([buy, {...buy}])
+        const [a, b] = fingerprints([buy, {...buy}], 'scalable-capital')
         assert.notEqual(a, b)
-        assert.deepEqual(fingerprints([buy, {...buy}]), [a, b])
-        assert.equal(fingerprints([buy])[0], a)
+        assert.deepEqual(fingerprints([buy, {...buy}], 'scalable-capital'), [a, b])
+        assert.equal(fingerprints([buy], 'scalable-capital')[0], a)
     })
 
     it('round-trip through the comment', () => {
@@ -54,9 +58,18 @@ describe('fingerprints', () => {
         assert.equal(extractFingerprint(null), undefined)
     })
 
+    it('take the provider of the run, not where a transaction came from', () => {
+        assert.match(fingerprints([buy], 'internal')[0], /^internal:[0-9a-f]{16}$/)
+    })
+
     it('are written into the activity comment by the mapper', () => {
-        const ghost = new Ghostfolio({accountId: 'a', transactions: [buy], map: {IE00B4L5Y983: 'EUNL.DE'}})
-        assert.equal(extractFingerprint(ghost.data.activities[0].comment), fingerprints([buy])[0])
+        const ghost = new Ghostfolio({
+            accountId: 'a',
+            transactions: [buy],
+            map: {IE00B4L5Y983: 'EUNL.DE'},
+            provider: 'scalable-capital',
+        })
+        assert.equal(extractFingerprint(ghost.data.activities[0].comment), fingerprints([buy], 'scalable-capital')[0])
     })
 })
 
@@ -93,7 +106,7 @@ describe('sync plan', () => {
             existing('e4', 'bought manually'),
             existing('e5', null),
         ]
-        const result = plan(desired, inGhostfolio)
+        const result = plan(desired, inGhostfolio, 'scalable-capital')
         assert.deepEqual(result.create, [desired[1]])
         assert.deepEqual(result.keep, [desired[0]])
         assert.deepEqual(
@@ -104,7 +117,7 @@ describe('sync plan', () => {
 
     it('is a no-op when everything is present', () => {
         const desired = [activity(sc('1'))]
-        const result = plan(desired, [existing('e1', tagComment(sc('1'), '1'))])
+        const result = plan(desired, [existing('e1', tagComment(sc('1'), '1'))], 'scalable-capital')
         assert.equal(result.create.length, 0)
         assert.equal(result.stale.length, 0)
         assert.equal(result.keep.length, 1)
@@ -135,23 +148,28 @@ describe('sync plan per provider', () => {
         currency: 'EUR',
     })
 
-    it('only compares activities of the providers in the inputs', () => {
+    it('only compares activities of the input provider of the run', () => {
         const desired = [activity('scalable-capital:' + '1'.repeat(16))]
         const inGhostfolio = [
             existing('sc-old', 'scalable-capital:' + '2'.repeat(16)),
             existing('tr', 'trade-republic:' + '3'.repeat(16)),
         ]
-        const result = plan(desired, inGhostfolio)
-        assert.deepEqual(result.providers, ['scalable-capital'])
+        const result = plan(desired, inGhostfolio, 'scalable-capital')
         assert.deepEqual(
             result.stale.map(it => it.id),
             ['sc-old']
         )
     })
 
+    it('keeps the activities of a broker when the internal provider runs', () => {
+        const desired = [activity('internal:' + '1'.repeat(16))]
+        const result = plan(desired, [existing('sc', 'scalable-capital:' + '1'.repeat(16))], 'internal')
+        assert.equal(result.stale.length, 0)
+        assert.equal(result.create.length, 1)
+    })
+
     it('prunes nothing without inputs', () => {
-        const result = plan([], [existing('sc', 'scalable-capital:' + '1'.repeat(16))])
-        assert.deepEqual(result.providers, [])
+        const result = plan([], [existing('sc', 'scalable-capital:' + '1'.repeat(16))], 'scalable-capital')
         assert.equal(result.stale.length, 0)
     })
 })

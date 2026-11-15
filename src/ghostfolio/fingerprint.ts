@@ -8,16 +8,16 @@ const FINGERPRINT = /(?:^|\s)fingerprint=([a-z0-9-]+:[0-9a-f]{16})(?=\s|$)/
 /**
  * A stable identity for a transaction, "<provider>:<hash>", derived from its business fields, so that
  * importing the same document twice yields the same fingerprint and the activity in Ghostfolio can be
- * recognised. The provider prefix scopes --prune to the broker of the current run.
+ * recognised. The provider is the input provider of the run (e.g. "scalable-capital" or "internal"), not
+ * where a transaction originally came from; it scopes --sync and --prune to that provider.
  *
  * Two transactions with identical fields (e.g. two orders at the same price on the same day) get an
  * ordinal appended before hashing, in input order, so they stay distinct and stable as long as the
  * inputs are read in the same order.
  */
-export function fingerprints(transactions: Transaction[]): string[] {
+export function fingerprints(transactions: Transaction[], provider: string): string[] {
     const seen = new Map<string, number>()
     return transactions.map(it => {
-        const provider = it._meta?.provider ?? 'unknown'
         const key = [provider, it.ISIN, it.type, it.date.toISOString(), it.quantity, it.price, it.currency].join('|')
         const ordinal = (seen.get(key) ?? 0) + 1
         seen.set(key, ordinal)
