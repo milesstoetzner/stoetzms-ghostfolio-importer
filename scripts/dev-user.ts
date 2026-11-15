@@ -20,12 +20,12 @@ async function main() {
     console.log(`Account:         ${account.id} (${account.name})`)
     console.log(`Bearer token:    ${user.data.authToken}`)
     console.log()
-    console.log('Import the example PDFs:')
+    console.log('Import the synthetic test PDFs:')
     console.log()
     console.log(
         [
             '  yarn start transform',
-            '--input-dir examples/inputs/scalable-capital',
+            '--input-dir tests/fixtures/scalable-capital',
             '--input-provider scalable-capital',
             `--ghostfolio-account-id ${account.id}`,
             '--ghostfolio-map examples/ghostfolio-map.json',

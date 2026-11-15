@@ -1,0 +1,62 @@
+{
+    "ok": true,
+    "command": "broker.transaction.details",
+    "data": {
+        "result": {
+            "account_id": "account-0000",
+            "portfolio_id": "portfolio-0000",
+            "id": "tx-cancelled",
+            "detail_type": "security_trade",
+            "detail_typename": "BrokerSecurityTransaction",
+            "type": "SECURITY_TRANSACTION",
+            "currency": "EUR",
+            "transaction_reference": "REF-TX-CANCELLED",
+            "last_event_datetime": "2024-05-02T12:00:00.000Z",
+            "is_pending": false,
+            "is_cancellation": false,
+            "security": {"isin": "IE00BFY0GT14", "name": "SPDR MSCI World UCITS ETF", "security_type": "ETF"},
+            "linked_transaction_ids": [],
+            "history": [
+                {
+                    "state": "REQUESTED",
+                    "timestamp": "2024-05-02T13:59:00",
+                    "number_of_shares": {"filled": 0, "total": 3},
+                    "execution_price": 80.0,
+                    "amount": null,
+                    "eltif_quantity": null
+                },
+                {
+                    "state": "CANCELLED",
+                    "timestamp": "2024-05-02T14:00:00",
+                    "number_of_shares": {"filled": 0, "total": 3},
+                    "execution_price": 80.0,
+                    "amount": null,
+                    "eltif_quantity": null
+                }
+            ],
+            "security_trade": {
+                "side": "BUY",
+                "status": "FINAL_NO_FILL",
+                "finalisation_reason": "CANCELLED",
+                "order_kind": "SINGLE",
+                "number_of_shares": {"filled": 0, "total": 3},
+                "average_price": 0,
+                "total_amount": 0,
+                "limit_price": null,
+                "stop_price": null,
+                "valid_until": "2024-03-15T21:59:59.000Z",
+                "is_cancellation_requested": false,
+                "trading_venue": "MUNC",
+                "fee": null,
+                "transactional_fee": null,
+                "taxes": null,
+                "aggregated_transaction_taxes": null,
+                "trailing_stop_info": null,
+                "trade_transaction_amounts": null
+            },
+            "cash": null,
+            "non_trade_security": null,
+            "eltif": null
+        }
+    }
+}

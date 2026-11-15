@@ -52,6 +52,49 @@ Import transactions from Scalable Capital.
 | input-format   | true      | `pdf`              |             |
 | ignore-errors  | false     | flag               | Skip PDFs that cannot be parsed instead of failing the run. Skipped files are reported on stderr. |
 
+#### From the Scalable CLI
+
+Instead of PDFs, the transactions can come from the official [Scalable CLI](https://github.com/ScalableCapital/scalable-cli) (tested with `sc` 1.3.0). The input is a directory with one file per transaction, each exactly as the CLI writes it:
+
+```
+sc broker transaction details --transaction-id <ID> --json > <ID>.json
+```
+
+| Option         | Mandatory | Value              | Description                                                                                     |
+| -------------- | --------- | ------------------ | ----------------------------------------------------------------------------------------------- |
+| input-filter   | false     | string             |                                                                                                 |
+| input-dir      | true      | string             | Directory with the `.json` files                                                                |
+| input-provider | true      | `scalable-capital` |                                                                                                 |
+| input-format   | true      | `json`             |                                                                                                 |
+| ignore-errors  | false     | flag               | Skip files that cannot be read instead of failing the run. Skipped files are reported on stderr. |
+
+The transaction ids come from `sc broker transactions --json`, at most 100 per page. After `sc login`, this loop (it needs [jq](https://jqlang.org)) writes the details of every transaction into the current directory. Files that already exist are kept, so running it again only fetches new transactions and those that were still pending:
+
+```bash
+cursor=""
+while :; do
+  page=$(sc broker transactions --page-size 100 ${cursor:+--cursor "$cursor"} --json)
+  jq -r '.data.result.items[].id' <<<"$page" | while IFS= read -r id; do
+    if [ -s "$id.json" ] && jq -e '.data.result.is_pending == false' "$id.json" >/dev/null; then continue; fi
+    sc broker transaction details --transaction-id "$id" --json > "$id.json" || { cat "$id.json" >&2; rm -f "$id.json"; exit 1; }
+    sleep 1
+  done || break
+  next=$(jq -r '.data.result.cursor // empty' <<<"$page")
+  { [ -z "$next" ] || [ "$next" = "$cursor" ]; } && break
+  cursor=$next
+done
+```
+
+The backend rate-limits the details calls; if the loop stops with `rate_limited`, wait a little and run it again.
+
+Then import the directory:
+
+```
+npx ghostfolio-importer transform --input-provider scalable-capital --input-format json --input-dir <dir> ...
+```
+
+Filled buys and sells (including savings plan executions) and distributions are imported, everything else is skipped and counted on stderr: unfilled or pending orders, deposits, withdrawals, interest, taxes and security transfers. A trade is imported with the filled number of shares, the average execution price and the day of the fill. A distribution has no share count in the details, so it is imported with quantity 1 and the paid amount as price.
+
 ### Trade Republic
 
 Import transactions from Trade Republic.
@@ -153,17 +196,7 @@ The provider was called `none` before; that name still works.
 
 ### Adding a provider
 
-Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. A PDF based input keeps its parser (a class that turns the text of one document into one transaction) in the same file, hands it to `readPdfs()` from `src/inputs/pdf.ts`, and needs a fixture in `tests/fixtures/` for the tests and example PDFs. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
-
-### Example inputs
-
-`examples/inputs/<provider>/*.pdf` are synthetic broker documents, rendered from the text fixtures in `tests/fixtures` by `yarn examples:generate`. They contain no real data, but they have the layout the extractors expect, so the CLI can be exercised without real statements:
-
-```
-yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider internal --output-format console
-```
-
-When you add or change a fixture, re-run `yarn examples:generate` and commit the PDFs; the tests check that both stay in sync.
+Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. A PDF based input keeps its parser (a class that turns the text of one document into one transaction) in the same file, hands it to `readPdfs()` from `src/inputs/pdf.ts`, and needs synthetic PDFs in `tests/fixtures/<provider>/` for its tests. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
 
 ### Local Ghostfolio
 
@@ -194,7 +227,6 @@ See [CHANGELOG.md](../CHANGELOG.md).
 -   We do not support taxes.
 -   We do only support EUR and USD.
 -   We do rely on a config to map ISINs to symbols that Ghostfolio understands.
--   We do rely on transactions provided by PDF.
 
 ## Similar Projects
 
