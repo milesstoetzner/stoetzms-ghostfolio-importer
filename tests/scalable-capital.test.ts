@@ -2,15 +2,15 @@ import {describe, it} from 'node:test'
 import assert from 'node:assert/strict'
 import ScalableCapital from '../src/inputs/scalable-capital'
 import {TransactionType} from '../src/types'
-import {fixture} from './fixtures'
+import {pdfText} from './fixtures'
 
-function extract(name: string) {
-    return new ScalableCapital(fixture('scalable-capital', name), name + '.pdf').data
+async function extract(name: string) {
+    return new ScalableCapital(await pdfText('scalable-capital', name), name + '.pdf').data
 }
 
 describe('scalable-capital', () => {
-    it('buy', () => {
-        const data = extract('buy')
+    it('buy', async () => {
+        const data = await extract('buy')
         assert.equal(data.type, TransactionType.BUY)
         assert.equal(data.ISIN, 'IE00B4L5Y983')
         assert.equal(data.quantity, 10.5)
@@ -21,8 +21,8 @@ describe('scalable-capital', () => {
         assert.equal(data._meta.file, 'buy.pdf')
     })
 
-    it('buy with thousands separators', () => {
-        const data = extract('buy-large')
+    it('buy with thousands separators', async () => {
+        const data = await extract('buy-large')
         assert.equal(data.type, TransactionType.BUY)
         assert.equal(data.ISIN, 'LU1681048804')
         assert.equal(data.quantity, 1250)
@@ -30,8 +30,8 @@ describe('scalable-capital', () => {
         assert.equal(data.currency, 'EUR')
     })
 
-    it('sell (tabular execution details)', () => {
-        const data = extract('sell')
+    it('sell (tabular execution details)', async () => {
+        const data = await extract('sell')
         assert.equal(data.type, TransactionType.SELL)
         assert.equal(data.ISIN, 'LU0908500753')
         assert.equal(data.quantity, 5)
@@ -40,8 +40,8 @@ describe('scalable-capital', () => {
         assert.equal(data.date.toISOString(), '2024-04-02T00:00:00.000Z')
     })
 
-    it('dividend in USD is converted to EUR', () => {
-        const data = extract('dividend')
+    it('dividend in USD is converted to EUR', async () => {
+        const data = await extract('dividend')
         assert.equal(data.type, TransactionType.DIVIDEND)
         assert.equal(data.ISIN, 'IE00B4L5Y983')
         assert.equal(data.quantity, 100)
@@ -50,7 +50,7 @@ describe('scalable-capital', () => {
         assert.equal(data.date.toISOString(), '2024-06-20T00:00:00.000Z')
     })
 
-    it('rejects a document without a transaction type', () => {
+    it('rejects a document without a transaction type', async () => {
         assert.throws(() => new ScalableCapital('Kosteninformation\nISIN: IE00B4L5Y983', 'x.pdf').data, /unknown type/)
     })
 })

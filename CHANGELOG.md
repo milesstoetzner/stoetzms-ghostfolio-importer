@@ -19,7 +19,7 @@ All notable changes to this project are documented here. The format follows
 -   `--sync` makes the endpoint import idempotent: activities carry a fingerprint in their comment (`manager=ghostfolio-importer version=… fingerprint=<provider>:<hash>`), and only those missing in the account are created, so the same PDF twice creates one activity. Byte-identical PDFs in the input directory are read once. `--prune` additionally deletes activities the importer created earlier for the same input provider that are no longer in the inputs. `--ghostfolio-endpoint` now accepts the Ghostfolio URL; the import URL still works. (#24)
 -   `--ignore-errors` to skip unreadable PDFs; skipped files are reported on stderr. (#10)
 -   The `internal` output provider writes `json` and `yaml` files in addition to `console`. (#7)
--   Local development environment: Ghostfolio in Docker Compose (`yarn dev:up`), `yarn dev:user` for an account id and token, synthetic example PDFs in `examples/inputs`. (#13)
+-   Local development environment: Ghostfolio in Docker Compose (`yarn dev:up`), `yarn dev:user` for an account id and token, synthetic test PDFs in `tests/fixtures`. (#13)
 -   Unit tests (`yarn test`), type checking (`yarn typecheck`) and the build run in CI; Dependabot keeps dependencies current. (#3, #5, #8)
 
 ### Changed

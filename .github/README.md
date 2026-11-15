@@ -196,17 +196,7 @@ The provider was called `none` before; that name still works.
 
 ### Adding a provider
 
-Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. A PDF based input keeps its parser (a class that turns the text of one document into one transaction) in the same file, hands it to `readPdfs()` from `src/inputs/pdf.ts`, and needs a fixture in `tests/fixtures/` for the tests and example PDFs. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
-
-### Example inputs
-
-`examples/inputs/<provider>/*.pdf` are synthetic broker documents, rendered from the text fixtures in `tests/fixtures` by `yarn examples:generate`. They contain no real data, but they have the layout the extractors expect, so the CLI can be exercised without real statements:
-
-```
-yarn start transform --input-dir examples/inputs/trade-republic --input-provider trade-republic --output-provider internal --output-format console
-```
-
-When you add or change a fixture, re-run `yarn examples:generate` and commit the PDFs; the tests check that both stay in sync.
+Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. A PDF based input keeps its parser (a class that turns the text of one document into one transaction) in the same file, hands it to `readPdfs()` from `src/inputs/pdf.ts`, and needs synthetic PDFs in `tests/fixtures/<provider>/` for its tests. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
 
 ### Local Ghostfolio
 

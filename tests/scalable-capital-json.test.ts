@@ -8,7 +8,7 @@ import {Transaction, TransactionType} from '../src/types'
 import {FIXTURES, fixture} from './fixtures'
 
 function parse(name: string): Transaction | string {
-    return parseScalableCapitalDetails(fixture('scalable-capital-json', name, 'json'), name + '.json')
+    return parseScalableCapitalDetails(fixture('scalable-capital-json', name + '.json'), name + '.json')
 }
 
 function row(result: Transaction | string) {
@@ -18,7 +18,7 @@ function row(result: Transaction | string) {
 }
 
 function envelope(name: string) {
-    return JSON.parse(fixture('scalable-capital-json', name, 'json'))
+    return JSON.parse(fixture('scalable-capital-json', name + '.json'))
 }
 
 describe('scalable-capital json (sc broker transaction details)', () => {
