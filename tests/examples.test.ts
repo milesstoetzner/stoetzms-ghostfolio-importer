@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import * as reader from 'pdf-text-reader'
-import ScalableCapital, {parseScalableCapitalJson} from '../src/inputs/scalable-capital'
+import ScalableCapital, {parseScalableCapitalDetails} from '../src/inputs/scalable-capital'
 import TradeRepublic from '../src/inputs/trade-republic'
 import {FIXTURES, fixture} from './fixtures'
 
@@ -20,19 +20,21 @@ const extractors = {
  * examples are in sync and that PDF text extraction behaves as the extractors expect.
  */
 describe('example JSON', () => {
-    it('scalable-capital-json/transactions.json matches its fixture', () => {
-        const file = path.join(EXAMPLES, 'scalable-capital-json', 'transactions.json')
-        assert.ok(fs.existsSync(file), `${file} is missing, run "yarn examples:generate"`)
-        assert.deepEqual(
-            parseScalableCapitalJson(fs.readFileSync(file, 'utf-8'), file).transactions.map(it => ({
-                ...it,
-                _meta: undefined,
-            })),
-            parseScalableCapitalJson(fixture('scalable-capital-json', 'transactions', 'json'), file).transactions.map(
-                it => ({...it, _meta: undefined})
+    for (const name of fs
+        .readdirSync(path.join(FIXTURES, 'scalable-capital-json'))
+        .filter(it => it.endsWith('.json'))) {
+        it(`scalable-capital-json/${name} matches its fixture`, () => {
+            const file = path.join(EXAMPLES, 'scalable-capital-json', name)
+            assert.ok(fs.existsSync(file), `${file} is missing, run "yarn examples:generate"`)
+            assert.deepEqual(
+                parseScalableCapitalDetails(fs.readFileSync(file, 'utf-8'), name),
+                parseScalableCapitalDetails(
+                    fs.readFileSync(path.join(FIXTURES, 'scalable-capital-json', name), 'utf-8'),
+                    name
+                )
             )
-        )
-    })
+        })
+    }
 })
 
 describe('example PDFs', () => {

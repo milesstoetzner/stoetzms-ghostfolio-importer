@@ -1,0 +1,49 @@
+{
+    "ok": true,
+    "command": "broker.transaction.details",
+    "data": {
+        "result": {
+            "account_id": "account-0000",
+            "portfolio_id": "portfolio-0000",
+            "id": "tx-deposit",
+            "detail_type": "cash",
+            "detail_typename": "BrokerCashTransaction",
+            "type": "CASH_TRANSACTION",
+            "currency": "EUR",
+            "transaction_reference": "REF-TX-DEPOSIT",
+            "last_event_datetime": "2024-03-01T07:00:00.000Z",
+            "is_pending": false,
+            "is_cancellation": false,
+            "security": null,
+            "linked_transaction_ids": [],
+            "history": [
+                {
+                    "state": "PENDING",
+                    "timestamp": "2024-02-29T18:00:00",
+                    "number_of_shares": null,
+                    "execution_price": null,
+                    "amount": null,
+                    "eltif_quantity": null
+                },
+                {
+                    "state": "SETTLED",
+                    "timestamp": "2024-03-01T07:00:00",
+                    "number_of_shares": null,
+                    "execution_price": null,
+                    "amount": null,
+                    "eltif_quantity": null
+                }
+            ],
+            "security_trade": null,
+            "cash": {
+                "cash_transaction_type": "DEPOSIT",
+                "amount": 1000,
+                "description": "Deposit",
+                "sddi_details": null,
+                "tax_details": null
+            },
+            "non_trade_security": null,
+            "eltif": null
+        }
+    }
+}

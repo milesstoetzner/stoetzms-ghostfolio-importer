@@ -196,137 +196,124 @@ export default class ScalableCapital {
 }
 
 /**
- * Reads the JSON printed by the official Scalable Capital CLI:
+ * Reads one file written by the official Scalable Capital CLI:
  *
- *   sc broker transactions --json --page-size 100
+ *   sc broker transaction details --transaction-id <ID> --json > <ID>.json
  *
- * The CLI prints an envelope {ok, command, data: {cursor, total, count, items}}. Each item is a
- * transaction summary; security trades carry isin, side, quantity and amount, cash transactions carry
- * cash_transaction_type and related_isin. Only filled or settled buys, sells and distributions become
- * transactions, everything else (deposits, fees, taxes, pending orders, cancellations) is skipped and
- * reported.
+ * The CLI prints an envelope {ok, command, data: {result}} whose result is one transaction. Its
+ * detail_type says which part is filled in: security_trade, cash or non_trade_security.
  *
- * The summary has no price per share; it is derived as amount / quantity. A distribution has no share
- * count, so it is imported with quantity 1 and the paid amount as price, which gives Ghostfolio the
- * right dividend value.
+ * - A filled trade becomes a buy or sell with the filled shares and the average execution price. Fees and
+ *   taxes are not imported. The date is the day of the FILLED entry in the history, the trade date.
+ * - A distribution becomes a dividend. The details have no share count, so it is imported with quantity 1
+ *   and the paid amount as price, which gives Ghostfolio the right dividend value.
+ * - Everything else (unfilled or pending orders, deposits, withdrawals, interest, taxes, transfers) is
+ *   skipped; the reason is returned instead of a transaction.
  */
+export function parseScalableCapitalDetails(text: string, file: string): Transaction | string {
+    const details = unwrap(JSON.parse(text))
+    const id = str(details.id)
+    if (!id) throw new Error('no transaction id')
+    try {
+        return convert(details, file, id)
+    } catch (error) {
+        throw new Error(`transaction ${id}: ${error instanceof Error ? error.message : error}`, {cause: error})
+    }
+}
 
 type Item = Record<string, unknown>
 
-export type Skipped = {id: string; reason: string}
+const EXPECTED = 'expected the JSON printed by "sc broker transaction details --json"'
 
-export type ScalableCapitalJsonResult = {transactions: Transaction[]; skipped: Skipped[]}
-
-const ACCEPTED_STATUS = ['FILLED', 'SETTLED', 'CONFIRMED']
-
-export function parseScalableCapitalJson(text: string, file: string): ScalableCapitalJsonResult {
-    const items = unwrap(JSON.parse(text))
-    const transactions: Transaction[] = []
-    const skipped: Skipped[] = []
-
-    items.forEach((item, index) => {
-        const id = str(item.id) ?? `#${index + 1}`
-        try {
-            const transaction = convert(item, file, id)
-            if (typeof transaction === 'string') skipped.push({id, reason: transaction})
-            else transactions.push(transaction)
-        } catch (error) {
-            throw new Error(`transaction ${id}: ${error instanceof Error ? error.message : error}`, {cause: error})
-        }
-    })
-
-    return {transactions, skipped}
-}
-
-/**
- * Accepts the CLI envelope, its bare data object, or a bare list of items.
- */
-function unwrap(parsed: unknown): Item[] {
-    if (Array.isArray(parsed)) return parsed as Item[]
-    if (typeof parsed !== 'object' || parsed === null)
-        throw new Error('expected the JSON printed by "sc broker transactions --json"')
-    const object = parsed as Item
-
-    if ('ok' in object) {
-        if (object.ok !== true) {
-            const error = object.error as Item | undefined
-            throw new Error(`the CLI reported an error: ${str(error?.message) ?? JSON.stringify(object.error)}`)
-        }
-        return unwrap(object.data)
+function unwrap(parsed: unknown): Item {
+    const envelope = object(parsed)
+    if (!envelope || !('ok' in envelope)) throw new Error(EXPECTED)
+    if (envelope.ok !== true) {
+        const error = object(envelope.error)
+        throw new Error(
+            `the Scalable CLI reported an error: ${str(error?.code) ?? 'unknown'}: ${str(error?.message) ?? ''}`.trim()
+        )
     }
-
-    if (Array.isArray(object.items)) return object.items as Item[]
-    throw new Error('expected the JSON printed by "sc broker transactions --json"')
+    const result = object(object(envelope.data)?.result)
+    if (!result || !str(result.detail_type)) throw new Error(EXPECTED)
+    return result
 }
 
-function convert(item: Item, file: string, id: string): Transaction | string {
-    const status = str(item.status)
-    if (item.is_cancellation === true) return 'cancellation'
-    if (status && !ACCEPTED_STATUS.includes(status)) return `status ${status}`
+function convert(details: Item, file: string, id: string): Transaction | string {
+    if (details.is_pending === true) return 'pending'
+    if (details.is_cancellation === true) return 'cancellation'
 
-    const summary = str(item.summary_type)
-    const currency = str(item.currency)
+    const currency = str(details.currency)
     if (!currency) throw new Error('no currency')
-    const date = parseEventDate(item.last_event_datetime)
+    const meta = {provider: 'scalable-capital', format: 'json', file, id, version: config.version}
+    const history = Array.isArray(details.history) ? details.history.map(object) : []
+    const detailType = str(details.detail_type)
 
-    const meta = {
-        provider: 'scalable-capital',
-        format: 'json',
-        file,
-        id,
-        version: config.version,
-        status,
-        description: str(item.description),
-    }
-
-    if (summary === 'BrokerSecurityTransactionSummary') {
-        const side = str(item.side)
+    if (detailType === 'security_trade') {
+        const trade = object(details.security_trade)
+        if (!trade) throw new Error('no security_trade')
+        if (trade.status !== 'FINAL_FILL') return `order ${str(trade.finalisation_reason) ?? str(trade.status)}`
+        const side = str(trade.side)
         const type = side === 'BUY' ? TransactionType.BUY : side === 'SELL' ? TransactionType.SELL : undefined
         if (!type) return `side ${side}`
-        const ISIN = str(item.isin)
-        if (!ISIN) throw new Error('no ISIN')
-        const quantity = decimal(item.quantity, 'quantity')
-        const amount = decimal(item.amount, 'amount')
-        if (quantity <= 0) throw new Error(`quantity ${quantity} is not positive`)
-        return {type, ISIN, quantity, price: Math.abs(amount) / quantity, currency, date, _meta: meta}
+        const quantity = positive(object(trade.number_of_shares)?.filled, 'number_of_shares.filled')
+        const price = positive(trade.average_price, 'average_price')
+        const filled = history.find(it => it?.state === 'FILLED')
+        const date = day(filled?.timestamp ?? details.last_event_datetime)
+        return {type, ISIN: isin(details), quantity, price, currency, date, _meta: meta}
     }
 
-    if (summary === 'BrokerCashTransactionSummary') {
-        const cashType = str(item.cash_transaction_type)
-        if (cashType !== 'DISTRIBUTION') return `cash transaction ${cashType}`
-        const ISIN = str(item.related_isin)
-        if (!ISIN) throw new Error('distribution without related ISIN')
-        const amount = decimal(item.amount, 'amount')
+    if (detailType === 'cash') {
+        const cash = object(details.cash)
+        const cashType = str(cash?.cash_transaction_type)
+        if (cashType !== 'DISTRIBUTION') return `cash ${cashType}`
+        const amount = positive(cash?.amount, 'cash.amount')
+        const date = day(history.at(-1)?.timestamp ?? details.last_event_datetime)
         return {
             type: TransactionType.DIVIDEND,
-            ISIN,
+            ISIN: isin(details),
             quantity: 1,
-            price: Math.abs(amount),
+            price: amount,
             currency,
             date,
             _meta: meta,
         }
     }
 
-    return `summary type ${summary}`
+    if (detailType === 'non_trade_security') {
+        return `non-trade ${str(object(details.non_trade_security)?.non_trade_security_transaction_type)}`
+    }
+
+    return `detail type ${detailType}`
 }
 
-function parseEventDate(raw: unknown): Date {
-    const value = typeof raw === 'object' && raw !== null ? (raw as Item).time : raw
-    if (typeof value !== 'string') throw new Error('no last_event_datetime')
-    const date = new Date(value)
-    if (isNaN(date.getTime())) throw new Error(`invalid last_event_datetime "${value}"`)
-    return date
+function isin(details: Item): string {
+    const value = str(object(details.security)?.isin)
+    if (!value) throw new Error('no security.isin')
+    return value
 }
 
 /**
- * The CLI prints decimals as strings ("1.23") to keep precision; numbers are accepted too.
+ * The calendar day of a timestamp such as "2024-03-15T10:15:22", at midnight UTC like the PDF inputs.
  */
-function decimal(raw: unknown, field: string): number {
-    const value = typeof raw === 'string' ? Number(raw.trim()) : raw
-    if (typeof value !== 'number' || !Number.isFinite(value) || (typeof raw === 'string' && raw.trim() === ''))
-        throw new Error(`${field} "${raw}" is not a number`)
+function day(raw: unknown): Date {
+    const match = typeof raw === 'string' ? raw.match(/^(\d{4})-(\d{2})-(\d{2})/) : null
+    if (!match) throw new Error(`invalid timestamp "${raw}"`)
+    return parseDate(match[3], match[2], match[1])
+}
+
+/**
+ * The CLI passes the backend's numbers through; they are JSON numbers, decimal strings are accepted too.
+ */
+function positive(raw: unknown, field: string): number {
+    const value = typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : raw
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0)
+        throw new Error(`${field} "${raw}" is not a positive number`)
     return value
+}
+
+function object(raw: unknown): Item | undefined {
+    return typeof raw === 'object' && raw !== null && !Array.isArray(raw) ? (raw as Item) : undefined
 }
 
 function str(raw: unknown): string | undefined {
@@ -338,44 +325,48 @@ export class ScalableCapitalInput implements InputProvider {
     readonly formats = ['pdf', 'json']
 
     read(options: InputOptions): Promise<Transaction[]> {
-        if (options.inputFormat === 'json') return readJson(options)
+        if (options.inputFormat === 'json') return readDetails(options)
         return readPdfs(options, ScalableCapital)
     }
 }
 
 /**
- * Reads the JSON printed by "sc broker transactions --json", either one --input-file or every .json
- * file in --input-dir (one per page of the CLI's pagination).
+ * Reads every .json file in the input directory, one transaction each. Like the PDFs, a file that cannot
+ * be read fails the run unless --ignore-errors is set; skipped transactions are counted on stderr.
  */
-async function readJson(options: InputOptions): Promise<Transaction[]> {
-    const files: string[] = []
-    if (options.inputFile) {
-        files.push(path.resolve(options.inputFile))
-    } else {
-        const dir = path.resolve(options.inputDir)
-        for (const file of (await fs.readdir(dir)).sort()) {
-            if (!file.toLowerCase().endsWith('.json')) continue
-            if (options.inputFilter && !file.includes(options.inputFilter)) continue
-            files.push(path.join(dir, file))
-        }
-        if (files.length === 0) std.log(`no JSON files found in "${dir}"`)
-    }
+async function readDetails(options: InputOptions): Promise<Transaction[]> {
+    const dir = path.resolve(options.inputDir)
+    const files = (await fs.readdir(dir))
+        .filter(file => file.toLowerCase().endsWith('.json'))
+        .filter(file => !options.inputFilter || file.includes(options.inputFilter))
+        .sort()
 
     const transactions: Transaction[] = []
+    const skipped = new Map<string, number>()
+    const failures: {file: string; error: unknown}[] = []
     for (const file of files) {
-        const result = parseScalableCapitalJson(await fs.readFile(file, 'utf-8'), file)
-        transactions.push(...result.transactions)
-        if (result.skipped.length > 0)
-            std.log(
-                `"${file}": skipped ${result.skipped.length} of ${result.skipped.length + result.transactions.length} entries ` +
-                    `(${summarize(result.skipped.map(it => it.reason))})`
-            )
+        const joined = path.join(dir, file)
+        try {
+            const result = parseScalableCapitalDetails(await fs.readFile(joined, 'utf-8'), joined)
+            if (typeof result === 'string') skipped.set(result, (skipped.get(result) ?? 0) + 1)
+            else transactions.push(result)
+        } catch (error) {
+            failures.push({file: joined, error})
+        }
     }
-    return transactions
-}
 
-function summarize(reasons: string[]): string {
-    const counts = new Map<string, number>()
-    for (const reason of reasons) counts.set(reason, (counts.get(reason) ?? 0) + 1)
-    return [...counts.entries()].map(([reason, count]) => `${count}× ${reason}`).join(', ')
+    if (skipped.size > 0)
+        std.log(
+            `skipped ${[...skipped.values()].reduce((a, b) => a + b)} of ${files.length} transactions: ` +
+                [...skipped.entries()].map(([reason, count]) => `${count}× ${reason}`).join(', ')
+        )
+    for (const failure of failures) std.error(`failed to read "${failure.file}"`, failure.error)
+    if (failures.length > 0 && !options.ignoreErrors)
+        throw new Error(
+            `${failures.length} of ${files.length} JSON files could not be read (see above). ` +
+                `Use --input-filter to select files or --ignore-errors to skip them.`
+        )
+    if (files.length === 0) std.log(`no JSON files found in "${dir}"`)
+
+    return transactions
 }

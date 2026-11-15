@@ -1,0 +1,42 @@
+{
+    "ok": true,
+    "command": "broker.transaction.details",
+    "data": {
+        "result": {
+            "account_id": "account-0000",
+            "portfolio_id": "portfolio-0000",
+            "id": "tx-transfer-in",
+            "detail_type": "non_trade_security",
+            "detail_typename": "BrokerNonTradeSecurityTransaction",
+            "type": "NON_TRADE_SECURITY_TRANSACTION",
+            "currency": "EUR",
+            "transaction_reference": "REF-TX-TRANSFER-IN",
+            "last_event_datetime": "2024-07-01T00:00:00.000Z",
+            "is_pending": false,
+            "is_cancellation": false,
+            "security": {"isin": "IE00BFY0GT14", "name": "SPDR MSCI World UCITS ETF", "security_type": "ETF"},
+            "linked_transaction_ids": [],
+            "history": [
+                {
+                    "state": "SETTLED",
+                    "timestamp": "2024-07-01T00:00:00",
+                    "number_of_shares": null,
+                    "execution_price": null,
+                    "amount": null,
+                    "eltif_quantity": null
+                }
+            ],
+            "security_trade": null,
+            "cash": null,
+            "non_trade_security": {
+                "isin": "IE00BFY0GT14",
+                "non_trade_security_transaction_type": "TRANSFER_IN",
+                "quantity": 2,
+                "average_price": 90,
+                "total_amount": 180,
+                "description": "Transfer in"
+            },
+            "eltif": null
+        }
+    }
+}

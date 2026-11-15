@@ -1,0 +1,68 @@
+{
+    "ok": true,
+    "command": "broker.transaction.details",
+    "data": {
+        "result": {
+            "account_id": "account-0000",
+            "portfolio_id": "portfolio-0000",
+            "id": "tx-sell",
+            "detail_type": "security_trade",
+            "detail_typename": "BrokerSecurityTransaction",
+            "type": "SECURITY_TRANSACTION",
+            "currency": "EUR",
+            "transaction_reference": "REF-TX-SELL",
+            "last_event_datetime": "2024-04-02T09:05:01.000Z",
+            "is_pending": false,
+            "is_cancellation": false,
+            "security": {"isin": "DE0007164600", "name": "SAP SE", "security_type": "STOCK"},
+            "linked_transaction_ids": [],
+            "history": [
+                {
+                    "state": "REQUESTED",
+                    "timestamp": "2024-04-02T11:04:50",
+                    "number_of_shares": {"filled": 0, "total": 5},
+                    "execution_price": 240.0,
+                    "amount": null,
+                    "eltif_quantity": null
+                },
+                {
+                    "state": "FILLED",
+                    "timestamp": "2024-04-02T11:05:01",
+                    "number_of_shares": {"filled": 5, "total": 5},
+                    "execution_price": 240.3,
+                    "amount": null,
+                    "eltif_quantity": null
+                }
+            ],
+            "security_trade": {
+                "side": "SELL",
+                "status": "FINAL_FILL",
+                "finalisation_reason": "FILLED",
+                "order_kind": "SINGLE",
+                "number_of_shares": {"filled": 5, "total": 5},
+                "average_price": 240.3,
+                "total_amount": 1200.51,
+                "limit_price": null,
+                "stop_price": null,
+                "valid_until": "2024-03-15T21:59:59.000Z",
+                "is_cancellation_requested": false,
+                "trading_venue": "MUNC",
+                "fee": null,
+                "transactional_fee": null,
+                "taxes": null,
+                "aggregated_transaction_taxes": null,
+                "trailing_stop_info": null,
+                "trade_transaction_amounts": {
+                    "market_valuation": 1201.5,
+                    "tax_amount": null,
+                    "transaction_fee": 0.99,
+                    "venue_fee": null,
+                    "crypto_spread_fee": null
+                }
+            },
+            "cash": null,
+            "non_trade_security": null,
+            "eltif": null
+        }
+    }
+}
