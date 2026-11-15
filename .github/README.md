@@ -129,7 +129,7 @@ The provider was called `none` before; that name still works.
 
 ### Adding a provider
 
-Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. PDF based inputs only need an extractor class in `src/extractors/` that turns the text of one document into one transaction, plus a fixture in `tests/fixtures/` for the tests and example PDFs. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
+Every input provider is a class in `src/inputs/` implementing `InputProvider` (a name, the input formats it accepts, and `read(options)` returning transactions in the internal format), registered in `src/inputs/index.ts`. Output providers live in `src/outputs/` and implement `OutputProvider` the same way. A PDF based input keeps its parser (a class that turns the text of one document into one transaction) in the same file, hands it to `readPdfs()` from `src/inputs/pdf.ts`, and needs a fixture in `tests/fixtures/` for the tests and example PDFs. The registries validate `--input-provider`, `--output-provider` and the formats, and feed the help text.
 
 ### Example inputs
 
