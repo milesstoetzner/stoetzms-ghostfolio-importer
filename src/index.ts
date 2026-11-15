@@ -20,7 +20,7 @@ program
     .option('--ignore-errors', 'skip input files that cannot be read instead of failing', false)
     .option('--output-provider <string>', '', 'ghostfolio')
     .option('--output-format <string>', '', 'json')
-    .option('--output-file <string>', '', 'output.json')
+    .option('--output-file <string>', 'defaults to output.<output-format> for file formats')
     .option('--ghostfolio-account-id <string>')
     .option('--ghostfolio-map <string>')
     .option('--ghostfolio-endpoint <string>')
