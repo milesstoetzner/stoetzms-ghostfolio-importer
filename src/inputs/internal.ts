@@ -1,5 +1,9 @@
 import * as yaml from 'js-yaml'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import {Transaction, TransactionType} from '../types'
+import {InputProvider} from '../providers'
+import {InputOptions} from '../options'
 
 export type InternalInputFormat = 'json' | 'yaml'
 
@@ -40,4 +44,17 @@ function parseTransaction(entry: unknown, index: number): Transaction {
     }
     if (typeof it._meta !== 'undefined') transaction._meta = it._meta
     return transaction
+}
+
+export class InternalInput implements InputProvider {
+    readonly name = 'internal'
+    /** The provider was called "none" before. */
+    readonly aliases = ['none']
+    readonly formats: InternalInputFormat[] = ['json', 'yaml']
+
+    async read(options: InputOptions): Promise<Transaction[]> {
+        if (!options.inputFile) throw new Error(`no input file`)
+        const text = await fs.readFile(path.resolve(options.inputFile), 'utf-8')
+        return parseTransactions(text, options.inputFormat as InternalInputFormat)
+    }
 }

@@ -1,3 +1,6 @@
+import {InputProvider} from '../providers'
+import {InputOptions} from '../options'
+import {readPdfs} from './pdf'
 import {Transaction, TransactionType} from '../types'
 import {convertPrice, isUndefined, parseDate, parseNumber} from '../utils/utils'
 import config from '../config'
@@ -181,5 +184,14 @@ export default class TradeRepublic {
         const result = regex.exec(this.raw)
         if (!result) return {} as Partial<T>
         return result.groups as Partial<T>
+    }
+}
+
+export class TradeRepublicInput implements InputProvider {
+    readonly name = 'trade-republic'
+    readonly formats = ['pdf']
+
+    read(options: InputOptions): Promise<Transaction[]> {
+        return readPdfs(options, TradeRepublic)
     }
 }

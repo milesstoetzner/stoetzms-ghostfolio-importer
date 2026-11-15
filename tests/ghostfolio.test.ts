@@ -1,6 +1,6 @@
 import {describe, it} from 'node:test'
 import assert from 'node:assert/strict'
-import Ghostfolio from '../src/outputs/ghostfolio'
+import Ghostfolio from '../src/ghostfolio/mapper'
 import {Transaction, TransactionType} from '../src/types'
 
 const transaction: Transaction = {
