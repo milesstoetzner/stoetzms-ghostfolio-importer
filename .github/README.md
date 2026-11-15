@@ -105,11 +105,17 @@ Ghostfolio identifies a security by its symbol at the data provider, not by ISIN
 | ghostfolio-endpoint | true      | string     | The Ghostfolio URL, e.g. `https://ghostfol.io` (the full import URL `.../api/v1/import` works as well) |
 | ghostfolio-token    | true      | string     | Bearer token, see [Local Ghostfolio](#local-ghostfolio) for how to get one                            |
 | sync                | false     | flag       | Only create activities that are not in Ghostfolio yet                                                  |
-| prune               | false     | flag       | With `sync`: also delete activities the importer created earlier that are no longer in the inputs      |
+| prune               | false     | flag       | With `sync`: also delete activities the importer created earlier for the same provider that are no longer in the inputs |
 
-Without `--sync` every run imports every transaction again, so running twice creates duplicates. With `--sync` the import is idempotent: every activity the importer writes carries a fingerprint of the transaction in its comment (`[id:…]`), computed from provider, ISIN, type, date, quantity, price and currency. On the next run the activities of the account are fetched, those whose fingerprint is already present are left alone, and only the missing ones are created. The same PDF twice therefore creates one activity. Byte-identical files in the input directory are read only once in the first place; two different documents that describe identical transactions (same ISIN, date, quantity and price) are kept apart.
+Without `--sync` every run imports every transaction again, so running twice creates duplicates. With `--sync` the import is idempotent: every activity the importer writes carries a fingerprint of the transaction in its comment, computed from provider, ISIN, type, date, quantity, price and currency:
 
-With `--prune` the inputs become the declared state of the account: activities the importer created earlier whose fingerprint no longer appears in the inputs are deleted. Activities without a fingerprint, i.e. everything you entered by hand or imported otherwise, are never touched. Without `--prune` such stale activities are only reported on stderr.
+```
+manager=ghostfolio-importer version=1.2.3 fingerprint=scalable-capital:3f9c2a71b0e4d815
+```
+
+ On the next run the activities of the account are fetched, those whose fingerprint is already present are left alone, and only the missing ones are created. The same PDF twice therefore creates one activity. Byte-identical files in the input directory are read only once in the first place; two different documents that describe identical transactions (same ISIN, date, quantity and price) are kept apart.
+
+With `--prune` the inputs become the declared state of the account for their provider: activities the importer created earlier for that provider whose fingerprint no longer appears in the inputs are deleted. Activities of other providers are left alone, so several brokers can sync into one account, each from its own input directory. Activities without the `manager=ghostfolio-importer` comment, i.e. everything you entered by hand or imported otherwise, are never touched. An empty input directory prunes nothing. Without `--prune` such stale activities are only reported on stderr.
 
 ### Internal
 

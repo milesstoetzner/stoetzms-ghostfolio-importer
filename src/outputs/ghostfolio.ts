@@ -41,17 +41,18 @@ export class GhostfolioOutput implements OutputProvider {
 
 /**
  * Brings the account in line with the inputs: creates what is missing, leaves what is already there,
- * and with --prune deletes what the importer created earlier but is no longer in the inputs. Activities
- * not created by the importer are never touched.
+ * and with --prune deletes what the importer created earlier for the same providers but is no longer in
+ * the inputs. Activities not created by the importer, or by it for another provider, are never touched.
+ * Without inputs there is no provider, so nothing is pruned.
  */
 async function sync(client: GhostfolioClient, ghost: Ghostfolio, options: OutputOptions): Promise<void> {
     const accountId = options.ghostfolioAccountId!
     const existing = await client.activities(accountId)
-    const {create, keep, stale} = plan(ghost.data.activities, existing)
+    const {create, keep, stale, providers} = plan(ghost.data.activities, existing)
 
     std.log(
-        `sync: ${ghost.data.activities.length} in inputs, ${existing.length} in account, ` +
-            `${keep.length} already present, ${create.length} to create, ${stale.length} stale`
+        `sync (${providers.join(', ') || 'no inputs'}): ${ghost.data.activities.length} in inputs, ` +
+            `${existing.length} in account, ${keep.length} already present, ${create.length} to create, ${stale.length} stale`
     )
 
     if (create.length > 0) std.log(await client.import(create))
